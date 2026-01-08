@@ -298,7 +298,6 @@
       .stickyBook{ right: 22px; bottom: 22px; }
     }
 
-    /* Global day/sunset/night overlays controlled by scroll */
     body[data-overlay="day"]{
       background:
         radial-gradient(1200px 800px at 20% 0%, rgba(80,160,255,0.12), transparent 60%),
@@ -408,13 +407,30 @@
 
   <script>
     /***********************
-     * 1) PASTE YOUR CSV URLS
-     * ONE sheet, multiple tabs.
+     * SHEET (baseball-style)
+     * ONE sheet, multiple tabs (SiteConfig, Stops, Alerts)
+     *
+     * IMPORTANT:
+     * 1) In Google Sheets: Share -> General access -> "Anyone with the link" -> Viewer
+     * 2) Tab names must match exactly: SiteConfig, Stops, Alerts
      ***********************/
+    const SHEET_ID = "12xCdrziWioRE3SxEeRyZgIvsFxz_gXIfvp5_7yUXXf8";
+    const TAB = { SITE: "SiteConfig", STOPS: "Stops", ALERTS: "Alerts" };
+
+    function gvizCsvUrl(sheetName){
+      const base = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq`;
+      const params = new URLSearchParams({
+        tqx: "out:csv",
+        sheet: sheetName,
+        cb: String(Date.now()) // cache-buster (updates show fast)
+      });
+      return `${base}?${params.toString()}`;
+    }
+
     const SHEETS = {
-      SITE_CONFIG_CSV: https://docs.google.com/spreadsheets/d/e/2PACX-1vRy-qixGpU5QmIJXnAoMeeK6i_Wh7bkiYHUvCrO3CUBGPGl8wTvUL7VF0EGfGSOrjPG-oLzpBvDpJfN/pub?gid=0&single=true&output=csv, // Tab: SiteConfig
-      STOPS_CSV: https://docs.google.com/spreadsheets/d/e/2PACX-1vRy-qixGpU5QmIJXnAoMeeK6i_Wh7bkiYHUvCrO3CUBGPGl8wTvUL7VF0EGfGSOrjPG-oLzpBvDpJfN/pub?gid=190709213&single=true&output=csv,             // Tab: Stops
-      ALERTS_CSV: https://docs.google.com/spreadsheets/d/e/2PACX-1vRy-qixGpU5QmIJXnAoMeeK6i_Wh7bkiYHUvCrO3CUBGPGl8wTvUL7VF0EGfGSOrjPG-oLzpBvDpJfN/pub?gid=1752064016&single=true&output=csv                                     // Tab: Alerts (optional)
+      SITE_CONFIG_CSV: gvizCsvUrl(TAB.SITE),
+      STOPS_CSV: gvizCsvUrl(TAB.STOPS),
+      ALERTS_CSV: gvizCsvUrl(TAB.ALERTS) // optional; leave tab empty if you don't use it
     };
 
     const DEFAULTS = {
@@ -451,9 +467,6 @@
       "ca":"california","california":"california"
     };
 
-    /***********************
-     * 2) CSV HELPERS
-     ***********************/
     function parseCSV(csvText){
       const rows = [];
       let row = [];
@@ -502,7 +515,7 @@
     }
 
     async function fetchCSV(url){
-      if (!url || url.startsWith("PASTE_")) return null;
+      if (!url) return null;
       const res = await fetch(url, { cache: "no-store" });
       if (!res.ok) throw new Error(`Failed to fetch CSV (${res.status})`);
       return await res.text();
@@ -518,14 +531,11 @@
       const [siteRows, stopRows, alertRows] = await Promise.all([
         loadSheetObjects(SHEETS.SITE_CONFIG_CSV),
         loadSheetObjects(SHEETS.STOPS_CSV),
-        SHEETS.ALERTS_CSV ? loadSheetObjects(SHEETS.ALERTS_CSV) : Promise.resolve([])
+        loadSheetObjects(SHEETS.ALERTS_CSV).catch(()=>[])
       ]);
       return { site: siteRows[0] || null, stops: stopRows || [], alerts: alertRows || [] };
     }
 
-    /***********************
-     * 3) SITE CONFIG APPLY
-     ***********************/
     function setText(id, value){
       const el = document.getElementById(id);
       if (el) el.textContent = value ?? "";
@@ -587,9 +597,6 @@
       return cfg;
     }
 
-    /***********************
-     * 4) RENDER ROUTE 66 + STOPS
-     ***********************/
     function el(tag, className, attrs={}){
       const e = document.createElement(tag);
       if (className) e.className = className;
@@ -696,7 +703,6 @@
         inner.appendChild(s);
       }
 
-      // If a state has zero stops, keep it but subtle (or you can remove states with no stops if you want)
       band.appendChild(overlay);
       band.appendChild(inner);
       return band;
@@ -706,7 +712,6 @@
       const mount = document.getElementById("statesMount");
       if (!mount) return;
 
-      // normalize + group stops by state key
       const normalizedStops = (stops || []).map(s => ({
         ...s,
         _stateKey: normalizeStateKey(s.state || s.state_theme_key || s.route_state || "")
@@ -720,7 +725,6 @@
         if (key) byState.get(key).push(stop);
       }
 
-      // sort within each state by order
       for (const rs of ROUTE66){
         byState.get(rs.key).sort((a,b)=> (Number(a.order)||0) - (Number(b.order)||0));
       }
@@ -756,9 +760,6 @@
       document.documentElement.style.setProperty("--accent", (found && found.accent) ? found.accent : "#ffd54a");
     }
 
-    /***********************
-     * 5) OBSERVERS
-     ***********************/
     function initStopObserver(){
       const stops = document.querySelectorAll(".stop");
       const io = new IntersectionObserver((entries)=>{
@@ -786,9 +787,6 @@
       bands.forEach(b => io.observe(b));
     }
 
-    /***********************
-     * 6) BOOT
-     ***********************/
     (async function main(){
       let data = { site:null, stops:[], alerts:[] };
       try { data = await loadAll(); }

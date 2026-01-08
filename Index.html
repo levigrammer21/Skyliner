@@ -6,14 +6,12 @@
   <meta name="description" content="Skyliner Motel — book fast, travel Route 66 in a scroll." />
   <title>Skyliner Motel</title>
 
-  <!-- Fonts (optional) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 
   <style>
     :root{
-      --bg: #0b0c10;
       --text: rgba(255,255,255,0.92);
       --muted: rgba(255,255,255,0.70);
       --line: rgba(255,255,255,0.10);
@@ -26,6 +24,7 @@
       --statePad: 34px;
       --font: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
     }
+
     *{ box-sizing:border-box; }
     html,body{ height:100%; }
     body{
@@ -36,6 +35,7 @@
                   radial-gradient(1200px 800px at 80% 20%, rgba(255,107,107,0.08), transparent 60%),
                   linear-gradient(180deg, #07070a 0%, #0b0c10 40%, #07070a 100%);
     }
+
     a{ color:inherit; text-decoration:none; }
     img{ max-width:100%; display:block; }
 
@@ -53,7 +53,7 @@
       padding:12px 14px;
       display:flex; align-items:center; justify-content:space-between; gap:12px;
     }
-    .brand__name{ font-weight:800; letter-spacing:0.2px; font-size:16px; line-height:1.1; }
+    .brand__name{ font-weight:900; letter-spacing:0.2px; font-size:16px; line-height:1.1; }
     .brand__tagline{ font-size:12px; color:var(--muted); margin-top:2px; }
     .topbar__meta{ display:flex; align-items:center; gap:10px; }
     .meta-link{
@@ -69,7 +69,7 @@
       border-radius:999px;
       padding:12px 14px;
       border:1px solid var(--line);
-      font-weight:800;
+      font-weight:900;
       letter-spacing:0.3px;
     }
     .btn--primary{
@@ -95,7 +95,7 @@
     .hero__facts{ display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin: 12px 0 14px; }
     .fact{ padding: 12px; border-radius: 14px; background: rgba(255,255,255,0.04); border: 1px solid var(--line); }
     .fact__label{ font-size:11px; color:var(--muted); }
-    .fact__value{ font-size:13px; font-weight:800; margin-top:4px; }
+    .fact__value{ font-size:13px; font-weight:900; margin-top:4px; }
     .fact__value a{ text-decoration:underline; text-underline-offset:3px; }
     .hero__cta{ display:flex; gap:10px; flex-wrap:wrap; }
 
@@ -126,7 +126,7 @@
       background: rgba(0,0,0,0.45);
       border: 1px solid rgba(255,255,255,0.18);
       font-size:12px;
-      font-weight:900;
+      font-weight:1000;
       letter-spacing:0.4px;
     }
 
@@ -179,7 +179,6 @@
         radial-gradient(900px 480px at 80% 10%, rgba(255,255,255,0.06), transparent 60%),
         rgba(255,255,255,0.03);
     }
-    .state__bg{ position:absolute; inset:0; background-size: cover; background-position: center; opacity: 0.26; }
     .state__overlay{
       position:absolute; inset:0;
       background: linear-gradient(180deg, rgba(8,8,12,0.55) 0%, rgba(8,8,12,0.78) 60%, rgba(8,8,12,0.85) 100%);
@@ -192,7 +191,7 @@
       border-radius: 999px;
       background: rgba(255,255,255,0.05);
       border: 1px solid rgba(255,255,255,0.10);
-      font-weight:900;
+      font-weight:1000;
       font-size: 12px;
       letter-spacing: 0.5px;
     }
@@ -218,7 +217,7 @@
       padding: 14px;
       box-shadow: 0 10px 28px rgba(0,0,0,0.25);
     }
-    .stop__title{ margin:0 0 6px; font-weight: 950; letter-spacing: 0.2px; font-size: 15px; }
+    .stop__title{ margin:0 0 6px; font-weight: 1000; letter-spacing: 0.2px; font-size: 15px; }
     .stop__body{ margin:0; color: rgba(255,255,255,0.78); line-height: 1.55; font-size: 13px; }
     .stop__media{
       border-radius: 14px; overflow:hidden;
@@ -252,6 +251,7 @@
       border: 1px solid rgba(255,255,255,0.16);
       backdrop-filter: blur(6px);
     }
+
     .stop[data-side="left"]{ padding-right: calc(50% + (var(--roadW) / 2) + var(--gutter)); }
     .stop[data-side="right"]{ padding-left:  calc(50% + (var(--roadW) / 2) + var(--gutter)); }
     .stop[data-side="center"]{ padding-left: 0; padding-right: 0; max-width: 720px; margin-left:auto; margin-right:auto; }
@@ -269,7 +269,7 @@
       justify-content:space-between;
       gap:12px;
     }
-    .footer__brand{ font-weight:950; }
+    .footer__brand{ font-weight:1000; }
     .footer__muted{ color:var(--muted); font-size:13px; margin-top:4px; }
 
     .stickyBook{
@@ -298,6 +298,7 @@
       .stickyBook{ right: 22px; bottom: 22px; }
     }
 
+    /* Global day/sunset/night overlays controlled by scroll */
     body[data-overlay="day"]{
       background:
         radial-gradient(1200px 800px at 20% 0%, rgba(80,160,255,0.12), transparent 60%),
@@ -408,12 +409,12 @@
   <script>
     /***********************
      * 1) PASTE YOUR CSV URLS
+     * ONE sheet, multiple tabs.
      ***********************/
     const SHEETS = {
-      SITE_CONFIG_CSV: "PASTE_SITE_CONFIG_CSV_URL_HERE",
-      STATES_CSV: "PASTE_STATES_CSV_URL_HERE",
-      STOPS_CSV: "PASTE_STOPS_CSV_URL_HERE",
-      ALERTS_CSV: "" // optional
+      SITE_CONFIG_CSV: "PASTE_SITE_CONFIG_CSV_URL_HERE", // Tab: SiteConfig
+      STOPS_CSV: "PASTE_STOPS_CSV_URL_HERE",             // Tab: Stops
+      ALERTS_CSV: ""                                     // Tab: Alerts (optional)
     };
 
     const DEFAULTS = {
@@ -424,12 +425,34 @@
       city_state_zip: "Your City, ST 00000",
       booking_url: "#",
       booking_image_url: "",
-      sticky_booking_text: "BOOK NOW",
-      overlay_style: "day"
+      sticky_booking_text: "BOOK NOW"
+    };
+
+    // Route 66 order is fixed (no sheet needed)
+    const ROUTE66 = [
+      { key: "illinois",  name: "Illinois",  overlay: "day",    accent: "#ffd54a", headline: "Chicago to the open road", subtext: "Your journey begins on the Mother Road." },
+      { key: "missouri",  name: "Missouri",  overlay: "day",    accent: "#7dd3fc", headline: "Bridges, diners, and neon", subtext: "Classic Americana at every turn." },
+      { key: "kansas",    name: "Kansas",    overlay: "day",    accent: "#86efac", headline: "A quick, iconic stretch", subtext: "Small state, big Route 66 energy." },
+      { key: "oklahoma",  name: "Oklahoma",  overlay: "sunset", accent: "#fbbf24", headline: "Big skies, long horizons", subtext: "Cruise into golden hour." },
+      { key: "texas",     name: "Texas",     overlay: "sunset", accent: "#fb7185", headline: "Wide roads, bright signs", subtext: "Everything feels larger here." },
+      { key: "newmexico", name: "New Mexico",overlay: "sunset", accent: "#f97316", headline: "Desert dusk",              subtext: "Warm tones, quiet miles." },
+      { key: "arizona",   name: "Arizona",   overlay: "night",  accent: "#a78bfa", headline: "Stars and roadside glow",  subtext: "Neon nights and desert air." },
+      { key: "california",name: "California",overlay: "night",  accent: "#fca5a5", headline: "You’ve arrived",           subtext: "Finish strong — book fast, rest easy." }
+    ];
+
+    const STATE_ALIASES = {
+      "il":"illinois","illinois":"illinois",
+      "mo":"missouri","missouri":"missouri",
+      "ks":"kansas","kansas":"kansas",
+      "ok":"oklahoma","oklahoma":"oklahoma",
+      "tx":"texas","texas":"texas",
+      "nm":"newmexico","new mexico":"newmexico","newmexico":"newmexico",
+      "az":"arizona","arizona":"arizona",
+      "ca":"california","california":"california"
     };
 
     /***********************
-     * 2) CSV LOADING HELPERS
+     * 2) CSV HELPERS
      ***********************/
     function parseCSV(csvText){
       const rows = [];
@@ -447,9 +470,7 @@
           continue;
         }
 
-        if (!inQuotes && c === ","){
-          row.push(cur); cur = ""; continue;
-        }
+        if (!inQuotes && c === ","){ row.push(cur); cur = ""; continue; }
 
         if (!inQuotes && (c === "\n" || c === "\r")){
           if (c === "\r" && n === "\n") i++;
@@ -494,17 +515,16 @@
     }
 
     async function loadAll(){
-      const [siteRows, stateRows, stopRows, alertRows] = await Promise.all([
+      const [siteRows, stopRows, alertRows] = await Promise.all([
         loadSheetObjects(SHEETS.SITE_CONFIG_CSV),
-        loadSheetObjects(SHEETS.STATES_CSV),
         loadSheetObjects(SHEETS.STOPS_CSV),
         SHEETS.ALERTS_CSV ? loadSheetObjects(SHEETS.ALERTS_CSV) : Promise.resolve([])
       ]);
-      return { site: siteRows[0] || null, states: stateRows || [], stops: stopRows || [], alerts: alertRows || [] };
+      return { site: siteRows[0] || null, stops: stopRows || [], alerts: alertRows || [] };
     }
 
     /***********************
-     * 3) RENDER + THEME
+     * 3) SITE CONFIG APPLY
      ***********************/
     function setText(id, value){
       const el = document.getElementById(id);
@@ -567,6 +587,9 @@
       return cfg;
     }
 
+    /***********************
+     * 4) RENDER ROUTE 66 + STOPS
+     ***********************/
     function el(tag, className, attrs={}){
       const e = document.createElement(tag);
       if (className) e.className = className;
@@ -577,7 +600,12 @@
     function normalizeSide(side){
       const s = (side || "").toLowerCase();
       if (s === "left" || s === "right" || s === "center") return s;
-      return "right";
+      return "";
+    }
+
+    function normalizeStateKey(input){
+      const raw = (input || "").trim().toLowerCase();
+      return STATE_ALIASES[raw] || raw || "";
     }
 
     function stopCta(stop){
@@ -588,16 +616,12 @@
       return a;
     }
 
-    function renderStateBand(state, stateStops){
+    function renderStateBand(routeState, stateStops){
       const band = el("section","state",{
-        "data-theme": (state.theme_key || "").trim(),
-        "data-overlay": (state.overlay_style || "").trim()
+        "data-theme": routeState.key,
+        "data-overlay": routeState.overlay
       });
 
-      const bg = el("div","state__bg");
-      if (state.background_image_url){
-        bg.style.backgroundImage = `url('${state.background_image_url}')`;
-      }
       const overlay = el("div","state__overlay");
       const inner = el("div","state__inner");
 
@@ -607,37 +631,40 @@
       kicker.appendChild(dot);
 
       const name = document.createElement("span");
-      name.textContent = (state.state_name || "STATE").toUpperCase();
+      name.textContent = routeState.name.toUpperCase();
       kicker.appendChild(name);
 
       const h = el("div","state__headline");
-      h.textContent = state.headline || `Now entering ${state.state_name || "Route 66"}`;
+      h.textContent = routeState.headline;
+
+      const p = el("p","state__subtext");
+      p.textContent = routeState.subtext;
 
       header.appendChild(kicker);
       header.appendChild(h);
-
-      if ((state.subtext || "").trim()){
-        const p = el("p","state__subtext");
-        p.textContent = state.subtext;
-        header.appendChild(p);
-      }
-
+      header.appendChild(p);
       inner.appendChild(header);
 
       let flip = true;
       for (const stop of (stateStops || [])){
-        const side = stop.side ? normalizeSide(stop.side) : (flip ? "left" : "right");
-        flip = !flip;
+        const forcedSide = normalizeSide(stop.side);
+        const side = forcedSide || (flip ? "left" : "right");
+        if (!forcedSide) flip = !flip;
 
         const s = el("article","stop",{"data-side":side,"data-stop-type":(stop.stop_type||"text")});
         const pin = el("div","stop__pin",{"aria-hidden":"true"});
         const card = el("div","stop__card");
 
         if ((stop.title || "").trim()){
-          const t = el("h3","stop__title"); t.textContent = stop.title; card.appendChild(t);
+          const t = el("h3","stop__title");
+          t.textContent = stop.title;
+          card.appendChild(t);
         }
+
         if ((stop.body || "").trim()){
-          const b = el("p","stop__body"); b.textContent = stop.body; card.appendChild(b);
+          const b = el("p","stop__body");
+          b.textContent = stop.body;
+          card.appendChild(b);
         }
 
         if ((stop.image_url || "").trim()){
@@ -669,36 +696,38 @@
         inner.appendChild(s);
       }
 
-      band.appendChild(bg);
+      // If a state has zero stops, keep it but subtle (or you can remove states with no stops if you want)
       band.appendChild(overlay);
       band.appendChild(inner);
       return band;
     }
 
-    function renderJourney({states, stops}){
+    function renderRoute66Journey(stops){
       const mount = document.getElementById("statesMount");
       if (!mount) return;
 
-      const st = [...(states || [])].sort((a,b)=> (Number(a.order)||0) - (Number(b.order)||0));
-      const sp = [...(stops || [])].sort((a,b)=> (Number(a.order)||0) - (Number(b.order)||0));
+      // normalize + group stops by state key
+      const normalizedStops = (stops || []).map(s => ({
+        ...s,
+        _stateKey: normalizeStateKey(s.state || s.state_theme_key || s.route_state || "")
+      }));
 
       const byState = new Map();
-      for (const stop of sp){
-        const key = (stop.state_theme_key || "").trim();
-        if (!byState.has(key)) byState.set(key, []);
-        byState.get(key).push(stop);
+      for (const rs of ROUTE66) byState.set(rs.key, []);
+
+      for (const stop of normalizedStops){
+        const key = byState.has(stop._stateKey) ? stop._stateKey : null;
+        if (key) byState.get(key).push(stop);
+      }
+
+      // sort within each state by order
+      for (const rs of ROUTE66){
+        byState.get(rs.key).sort((a,b)=> (Number(a.order)||0) - (Number(b.order)||0));
       }
 
       mount.innerHTML = "";
-
-      if (st.length === 0){
-        mount.appendChild(renderStateBand({ state_name:"Route 66", theme_key:"route66", headline:"Roadside Stops", subtext:"", overlay_style:"day" }, sp));
-        return;
-      }
-
-      for (const state of st){
-        const key = (state.theme_key || "").trim();
-        mount.appendChild(renderStateBand(state, byState.get(key) || []));
+      for (const rs of ROUTE66){
+        mount.appendChild(renderStateBand(rs, byState.get(rs.key)));
       }
     }
 
@@ -707,9 +736,11 @@
       const text = document.getElementById("alertText");
       if (!bar || !text) return;
 
-      const active = (alerts || []).find(a => String(a.active || "").toLowerCase() === "true" && (a.message || "").trim());
-      if (!active){ bar.hidden = true; return; }
+      const active = (alerts || []).find(a =>
+        String(a.active || "").toLowerCase() === "true" && (a.message || "").trim()
+      );
 
+      if (!active){ bar.hidden = true; return; }
       text.textContent = active.message;
       bar.hidden = false;
     }
@@ -717,25 +748,16 @@
     function setThemeFromStateBand(band){
       if (!band) return;
       const overlay = band.getAttribute("data-overlay") || "day";
+      const theme = (band.getAttribute("data-theme") || "").toLowerCase();
+
       document.body.setAttribute("data-overlay", overlay);
 
-      const key = (band.getAttribute("data-theme") || "").toLowerCase();
-      const palette = {
-        illinois:  { a:"#ffd54a" },
-        missouri:  { a:"#7dd3fc" },
-        oklahoma:  { a:"#86efac" },
-        texas:     { a:"#fb7185" },
-        newmexico: { a:"#fbbf24" },
-        arizona:   { a:"#a78bfa" },
-        california:{ a:"#fca5a5" },
-        route66:   { a:"#ffd54a" }
-      };
-      const pick = palette[key] || { a:"#ffd54a" };
-      document.documentElement.style.setProperty("--accent", pick.a);
+      const found = ROUTE66.find(s => s.key === theme);
+      document.documentElement.style.setProperty("--accent", (found && found.accent) ? found.accent : "#ffd54a");
     }
 
     /***********************
-     * 4) OBSERVERS
+     * 5) OBSERVERS
      ***********************/
     function initStopObserver(){
       const stops = document.querySelectorAll(".stop");
@@ -765,15 +787,15 @@
     }
 
     /***********************
-     * 5) BOOT
+     * 6) BOOT
      ***********************/
     (async function main(){
-      let data = { site:null, states:[], stops:[], alerts:[] };
+      let data = { site:null, stops:[], alerts:[] };
       try { data = await loadAll(); }
       catch (err) { console.warn("Sheet load failed (using defaults):", err); }
 
-      const cfg = applySiteConfig(data.site);
-      renderJourney({ states: data.states, stops: data.stops });
+      applySiteConfig(data.site);
+      renderRoute66Journey(data.stops);
       applyAlerts(data.alerts);
 
       initStopObserver();

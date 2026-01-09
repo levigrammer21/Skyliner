@@ -8,7 +8,7 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 
   <style>
     :root{
@@ -16,6 +16,13 @@
       --muted: rgba(255,255,255,0.70);
       --line: rgba(255,255,255,0.10);
       --accent: #ffd54a;
+
+      /* NEW neon palette */
+      --neonPink: #ff4fd8;
+      --neonCyan: #39d5ff;
+      --neonAmber: #ffd54a;
+      --neonRed: #ff4a4a;
+
       --shadow: 0 12px 36px rgba(0,0,0,.35);
       --radius: 18px;
       --max: 1100px;
@@ -31,9 +38,10 @@
       margin:0;
       font-family:var(--font);
       color:var(--text);
-      background: radial-gradient(1200px 800px at 20% 0%, rgba(255,213,74,0.10), transparent 60%),
-                  radial-gradient(1200px 800px at 80% 20%, rgba(255,107,107,0.08), transparent 60%),
-                  linear-gradient(180deg, #07070a 0%, #0b0c10 40%, #07070a 100%);
+      background:
+        radial-gradient(1200px 800px at 20% 0%, rgba(255,213,74,0.10), transparent 60%),
+        radial-gradient(1200px 800px at 80% 20%, rgba(255,107,107,0.08), transparent 60%),
+        linear-gradient(180deg, #07070a 0%, #0b0c10 40%, #07070a 100%);
     }
 
     a{ color:inherit; text-decoration:none; }
@@ -42,28 +50,48 @@
     .skip{ position:absolute; left:-9999px; top:auto; width:1px; height:1px; overflow:hidden; }
     .skip:focus{ left:12px; top:12px; width:auto; height:auto; padding:10px 12px; background:#fff; color:#000; border-radius:12px; z-index:9999; }
 
+    /* ========= TOPBAR ========= */
     .topbar{
       position:sticky; top:0; z-index:50;
       backdrop-filter: blur(10px);
-      background: rgba(10,10,14,0.75);
-      border-bottom: 1px solid var(--line);
+      background: rgba(10,10,14,0.65);
+      border-bottom: 1px solid rgba(255,255,255,0.10);
     }
     .topbar__inner{
       max-width:var(--max); margin:0 auto;
       padding:12px 14px;
       display:flex; align-items:center; justify-content:space-between; gap:12px;
     }
-    .brand__name{ font-weight:900; letter-spacing:0.2px; font-size:16px; line-height:1.1; }
+
+    /* NEW neon brand treatment */
+    .brand__name{
+      font-weight: 1000;
+      letter-spacing: 0.2px;
+      font-size:16px;
+      line-height:1.1;
+      text-shadow:
+        0 0 10px rgba(57,213,255,0.30),
+        0 0 18px rgba(255,79,216,0.18);
+    }
     .brand__tagline{ font-size:12px; color:var(--muted); margin-top:2px; }
+
     .topbar__meta{ display:flex; align-items:center; gap:10px; }
     .meta-link{
       font-size:13px;
-      padding:10px 10px;
-      border:1px solid var(--line);
+      padding:10px 12px;
+      border:1px solid rgba(255,255,255,0.10);
       border-radius:999px;
       background: rgba(255,255,255,0.04);
+      box-shadow: 0 0 0 rgba(0,0,0,0);
+      transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+    }
+    .meta-link:active{ transform: scale(0.98); }
+    .meta-link:hover{
+      border-color: rgba(57,213,255,0.35);
+      box-shadow: 0 0 18px rgba(57,213,255,0.12);
     }
 
+    /* ========= BUTTONS ========= */
     .btn{
       display:inline-flex; align-items:center; justify-content:center;
       border-radius:999px;
@@ -71,34 +99,143 @@
       border:1px solid var(--line);
       font-weight:900;
       letter-spacing:0.3px;
+      transition: transform .15s ease, filter .15s ease, box-shadow .15s ease;
+      user-select:none;
     }
+    .btn:active{ transform: scale(0.98); }
+
     .btn--primary{
-      background: linear-gradient(135deg, rgba(255,213,74,0.95), rgba(255,107,107,0.75));
+      background: linear-gradient(135deg, rgba(255,213,74,0.98), rgba(255,74,74,0.82));
       border-color: rgba(255,255,255,0.08);
-      color: #111;
+      color:#111;
+      box-shadow:
+        0 16px 50px rgba(0,0,0,0.40),
+        0 0 24px rgba(255,213,74,0.16);
     }
-    .btn--ghost{ background: rgba(255,255,255,0.04); }
+    .btn--primary:hover{ filter: brightness(1.05); }
+
+    /* NEW “Take the Route 66 scroll” neon button */
+    .btn--route{
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+      border-color: rgba(57,213,255,0.25);
+      box-shadow:
+        0 0 22px rgba(57,213,255,0.12),
+        inset 0 0 0 1px rgba(255,79,216,0.10);
+      position:relative;
+      overflow:hidden;
+    }
+    .btn--route::before{
+      content:"";
+      position:absolute; inset:-2px;
+      background: conic-gradient(from 200deg,
+        rgba(57,213,255,0.00),
+        rgba(57,213,255,0.22),
+        rgba(255,79,216,0.18),
+        rgba(255,213,74,0.16),
+        rgba(57,213,255,0.00)
+      );
+      filter: blur(10px);
+      opacity: 0.55;
+      pointer-events:none;
+      animation: neonSweep 4.5s linear infinite;
+    }
+    @keyframes neonSweep{
+      from{ transform: rotate(0deg); }
+      to{ transform: rotate(360deg); }
+    }
+    .btn--route span{ position:relative; display:inline-flex; align-items:center; gap:10px; }
+    .routeBadge{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      width:36px; height:28px;
+      border-radius:10px;
+      background: rgba(0,0,0,0.35);
+      border:1px solid rgba(255,255,255,0.16);
+      box-shadow: 0 0 18px rgba(255,79,216,0.12);
+      font-weight:1000;
+      letter-spacing:0.6px;
+    }
+
     .btn--xl{ padding:14px 16px; font-size:14px; min-width: 150px; }
     .btn--book{ display:none; }
 
-    .hero{ padding: 22px 14px 10px; }
-    .hero__inner{ max-width:var(--max); margin:0 auto; display:grid; gap:14px; }
+    /* ========= HERO ========= */
+    .hero{
+      padding: 18px 14px 10px;
+      position:relative;
+    }
+    /* NEW: Neon glow halo behind hero */
+    .hero::before{
+      content:"";
+      position:absolute;
+      inset:-40px 0 auto 0;
+      height: 320px;
+      background:
+        radial-gradient(420px 240px at 18% 20%, rgba(57,213,255,0.16), transparent 70%),
+        radial-gradient(420px 240px at 78% 10%, rgba(255,79,216,0.14), transparent 70%),
+        radial-gradient(420px 240px at 50% 50%, rgba(255,213,74,0.08), transparent 70%);
+      pointer-events:none;
+      filter: blur(2px);
+    }
+
+    .hero__inner{ max-width:var(--max); margin:0 auto; display:grid; gap:14px; position:relative; z-index:1; }
+
     .hero__copy{
       padding:16px;
       border-radius: var(--radius);
       background: rgba(255,255,255,0.04);
-      border: 1px solid var(--line);
+      border: 1px solid rgba(255,255,255,0.10);
       box-shadow: var(--shadow);
+      position:relative;
+      overflow:hidden;
     }
-    .hero__h1{ margin:0 0 6px; font-size:28px; letter-spacing:-0.5px; }
-    .hero__p{ margin:0 0 12px; color:var(--muted); line-height:1.5; }
-    .hero__facts{ display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin: 12px 0 14px; }
-    .fact{ padding: 12px; border-radius: 14px; background: rgba(255,255,255,0.04); border: 1px solid var(--line); }
+
+    /* NEW: subtle neon border glow */
+    .hero__copy::after{
+      content:"";
+      position:absolute; inset:-2px;
+      border-radius: calc(var(--radius) + 2px);
+      background: linear-gradient(90deg,
+        rgba(57,213,255,0.22),
+        rgba(255,79,216,0.18),
+        rgba(255,213,74,0.18),
+        rgba(57,213,255,0.22)
+      );
+      opacity: 0.22;
+      filter: blur(10px);
+      pointer-events:none;
+    }
+
+    .hero__h1{
+      margin:0 0 6px;
+      font-size:30px;
+      letter-spacing:-0.6px;
+      font-weight: 1000;
+      text-shadow:
+        0 0 16px rgba(57,213,255,0.16),
+        0 0 22px rgba(255,79,216,0.10);
+      position:relative;
+      z-index:1;
+    }
+    .hero__p{ margin:0 0 12px; color:var(--muted); line-height:1.5; position:relative; z-index:1; }
+
+    .hero__facts{ display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin: 12px 0 14px; position:relative; z-index:1; }
+    .fact{
+      padding: 12px;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.10);
+      box-shadow: 0 0 24px rgba(0,0,0,0.15);
+    }
     .fact__label{ font-size:11px; color:var(--muted); }
     .fact__value{ font-size:13px; font-weight:900; margin-top:4px; }
     .fact__value a{ text-decoration:underline; text-underline-offset:3px; }
-    .hero__cta{ display:flex; gap:10px; flex-wrap:wrap; }
 
+    .hero__cta{ display:flex; gap:10px; flex-wrap:wrap; position:relative; z-index:1; }
+
+    /* ========= ALERT ========= */
     .alert{
       margin-top:14px;
       display:flex; gap:10px; align-items:flex-start;
@@ -106,17 +243,27 @@
       background: rgba(255,213,74,0.12);
       border: 1px solid rgba(255,213,74,0.25);
       border-radius: 14px;
+      position:relative; z-index:1;
     }
     .alert__icon{ font-size:18px; line-height:1; }
     .alert__text{ font-size:13px; color: rgba(255,255,255,0.85); line-height:1.4; }
 
+    /* ========= SIGN IMAGE CARD ========= */
     .bookingCard{
       position:relative;
       border-radius: var(--radius);
       overflow:hidden;
       background: rgba(255,255,255,0.03);
-      border: 1px solid var(--line);
+      border: 1px solid rgba(255,255,255,0.10);
       box-shadow: var(--shadow);
+    }
+    .bookingCard::after{
+      content:"";
+      position:absolute; inset:0;
+      background:
+        radial-gradient(240px 240px at 70% 20%, rgba(57,213,255,0.12), transparent 70%),
+        radial-gradient(280px 220px at 20% 80%, rgba(255,79,216,0.10), transparent 70%);
+      pointer-events:none;
     }
     .bookingCard__badge{
       position:absolute;
@@ -128,8 +275,53 @@
       font-size:12px;
       font-weight:1000;
       letter-spacing:0.4px;
+      box-shadow: 0 0 22px rgba(255,79,216,0.10);
     }
 
+    /* ========= BIO (NEW) ========= */
+    .bio{
+      max-width:var(--max);
+      margin: 12px auto 0;
+      padding: 0 14px;
+    }
+    .bio__card{
+      border-radius: var(--radius);
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.10);
+      box-shadow: var(--shadow);
+      padding: 16px;
+      position:relative;
+      overflow:hidden;
+    }
+    .bio__card::before{
+      content:"";
+      position:absolute; inset:-2px;
+      border-radius: calc(var(--radius) + 2px);
+      background: linear-gradient(90deg,
+        rgba(255,79,216,0.22),
+        rgba(57,213,255,0.20),
+        rgba(255,213,74,0.18)
+      );
+      opacity: 0.18;
+      filter: blur(12px);
+      pointer-events:none;
+    }
+    .bio__title{
+      margin:0 0 8px;
+      font-size:16px;
+      font-weight:1000;
+      letter-spacing:0.2px;
+      position:relative;
+    }
+    .bio__body{
+      margin:0;
+      color: rgba(255,255,255,0.78);
+      line-height: 1.6;
+      font-size: 13.5px;
+      position:relative;
+    }
+
+    /* ========= JOURNEY (road untouched) ========= */
     .journey{ padding: 18px 14px 60px; }
     .journey__header{ max-width:var(--max); margin:0 auto 14px; }
     .journey__h2{ margin:0 0 6px; font-size:20px; }
@@ -256,8 +448,9 @@
     .stop[data-side="right"]{ padding-left:  calc(50% + (var(--roadW) / 2) + var(--gutter)); }
     .stop[data-side="center"]{ padding-left: 0; padding-right: 0; max-width: 720px; margin-left:auto; margin-right:auto; }
 
+    /* ========= FOOTER ========= */
     .footer{
-      padding: 26px 14px 90px;
+      padding: 26px 14px 44px; /* reduced padding because sticky CTA exists */
       border-top: 1px solid var(--line);
       background: rgba(0,0,0,0.15);
     }
@@ -272,6 +465,10 @@
     .footer__brand{ font-weight:1000; }
     .footer__muted{ color:var(--muted); font-size:13px; margin-top:4px; }
 
+    /* REMOVE redundant footer BOOK NOW (keep info only) */
+    .footer__right{ display:none; }
+
+    /* ========= STICKY BOOK (keep) ========= */
     .stickyBook{
       position: fixed;
       right: 14px; bottom: 14px;
@@ -290,14 +487,17 @@
     @media (min-width: 860px){
       .hero__inner{ grid-template-columns: 1.1fr 0.9fr; align-items:stretch; }
       .btn--book{ display:inline-flex; }
-      .hero__h1{ font-size:38px; }
+      .hero__h1{ font-size:42px; }
       .journey__h2{ font-size:24px; }
       .state__headline{ font-size: 20px; }
       .stop[data-side="left"]{ padding-right: calc(50% + (var(--roadW) / 2) + 28px); }
       .stop[data-side="right"]{ padding-left:  calc(50% + (var(--roadW) / 2) + 28px); }
       .stickyBook{ right: 22px; bottom: 22px; }
+      .footer__right{ display:none; } /* still hidden on desktop */
+      .bio{ padding: 0; } /* align to max container already */
     }
 
+    /* Global day/sunset/night overlays controlled by scroll */
     body[data-overlay="day"]{
       background:
         radial-gradient(1200px 800px at 20% 0%, rgba(80,160,255,0.12), transparent 60%),
@@ -341,7 +541,7 @@
       <div class="hero__inner">
         <div class="hero__copy">
           <h1 class="hero__h1" id="heroTitle">Skyliner Motel</h1>
-          <p class="hero__p" id="heroSubtitle">Book Now! Then take a scroll down Route 66.</p>
+          <p class="hero__p" id="heroSubtitle">Book fast — then take a neon cruise down Route 66.</p>
 
           <div class="hero__facts">
             <div class="fact">
@@ -356,7 +556,10 @@
 
           <div class="hero__cta">
             <a class="btn btn--primary btn--xl" id="bookNowHero" href="#" target="_blank" rel="noopener">BOOK NOW</a>
-            <a class="btn btn--ghost btn--xl" href="#journey">Take the Route 66 scroll</a>
+
+            <a class="btn btn--route btn--xl" href="#journey" aria-label="Take the Route 66 scroll">
+              <span><span class="routeBadge">66</span> Take the Route 66 scroll</span>
+            </a>
           </div>
 
           <div class="alert" id="alertBar" hidden>
@@ -369,6 +572,14 @@
           <img id="bookingImage" alt="Booking" loading="eager" decoding="async" />
           <div class="bookingCard__badge">Tap to Book</div>
         </a>
+      </div>
+
+      <!-- NEW: BIO section (sits directly under sign image area) -->
+      <div class="bio" id="bioSection" hidden>
+        <div class="bio__card">
+          <h3 class="bio__title" id="bioTitle">About Skyliner Motel</h3>
+          <p class="bio__body" id="bioBody"></p>
+        </div>
       </div>
     </section>
 
@@ -395,12 +606,14 @@
           <div class="footer__muted" id="footerAddress">—</div>
         </div>
         <div class="footer__right">
+          <!-- intentionally hidden via CSS to remove redundancy -->
           <a class="btn btn--primary" id="bookNowFooter" href="#" target="_blank" rel="noopener">BOOK NOW</a>
         </div>
       </div>
     </footer>
   </main>
 
+  <!-- KEEP the sticky CTA -->
   <a class="stickyBook" id="stickyBook" href="#" target="_blank" rel="noopener" aria-label="Book now">
     <span class="stickyBook__label" id="stickyBookLabel">BOOK NOW</span>
   </a>
@@ -408,11 +621,7 @@
   <script>
     /***********************
      * SHEET (baseball-style)
-     * ONE sheet, multiple tabs (SiteConfig, Stops, Alerts)
-     *
-     * IMPORTANT:
-     * 1) In Google Sheets: Share -> General access -> "Anyone with the link" -> Viewer
-     * 2) Tab names must match exactly: SiteConfig, Stops, Alerts
+     * ONE sheet, multiple tabs: SiteConfig, Stops, Alerts
      ***********************/
     const SHEET_ID = "12xCdrziWioRE3SxEeRyZgIvsFxz_gXIfvp5_7yUXXf8";
     const TAB = { SITE: "SiteConfig", STOPS: "Stops", ALERTS: "Alerts" };
@@ -422,7 +631,7 @@
       const params = new URLSearchParams({
         tqx: "out:csv",
         sheet: sheetName,
-        cb: String(Date.now()) // cache-buster (updates show fast)
+        cb: String(Date.now())
       });
       return `${base}?${params.toString()}`;
     }
@@ -430,7 +639,7 @@
     const SHEETS = {
       SITE_CONFIG_CSV: gvizCsvUrl(TAB.SITE),
       STOPS_CSV: gvizCsvUrl(TAB.STOPS),
-      ALERTS_CSV: gvizCsvUrl(TAB.ALERTS) // optional; leave tab empty if you don't use it
+      ALERTS_CSV: gvizCsvUrl(TAB.ALERTS)
     };
 
     const DEFAULTS = {
@@ -441,10 +650,13 @@
       city_state_zip: "Your City, ST 00000",
       booking_url: "#",
       booking_image_url: "",
-      sticky_booking_text: "BOOK NOW"
+      sticky_booking_text: "BOOK NOW",
+
+      /* NEW bio defaults */
+      bio_title: "About Skyliner Motel",
+      bio_body: ""
     };
 
-    // Route 66 order is fixed (no sheet needed)
     const ROUTE66 = [
       { key: "illinois",  name: "Illinois",  overlay: "day",    accent: "#ffd54a", headline: "Chicago to the open road", subtext: "Your journey begins on the Mother Road." },
       { key: "missouri",  name: "Missouri",  overlay: "day",    accent: "#7dd3fc", headline: "Bridges, diners, and neon", subtext: "Classic Americana at every turn." },
@@ -574,7 +786,7 @@
       setText("addressText", cfg.address_line);
 
       const bookingUrl = safeUrl(cfg.booking_url) || "#";
-      ["bookNowTop","bookNowHero","bookNowFooter","stickyBook","bookingCard"].forEach(id => setAttr(id,"href",bookingUrl));
+      ["bookNowTop","bookNowHero","stickyBook","bookingCard","bookNowFooter"].forEach(id => setAttr(id,"href",bookingUrl));
       setText("stickyBookLabel", cfg.sticky_booking_text || "BOOK NOW");
       setText("footerAddress", `${cfg.address_line} • ${cfg.city_state_zip}`);
 
@@ -592,6 +804,17 @@
       if (!cfg.booking_url || cfg.booking_url === "#"){
         const sticky = document.getElementById("stickyBook");
         if (sticky) sticky.style.display = "none";
+      }
+
+      /* NEW: Bio section */
+      const bioSection = document.getElementById("bioSection");
+      const bioBody = (cfg.bio_body || "").trim();
+      if (bioSection && bioBody){
+        setText("bioTitle", (cfg.bio_title || "About Skyliner Motel"));
+        setText("bioBody", bioBody);
+        bioSection.hidden = false;
+      } else if (bioSection){
+        bioSection.hidden = true;
       }
 
       return cfg;
@@ -618,8 +841,8 @@
     function stopCta(stop){
       if (!stop.cta_text || !stop.cta_url) return null;
       const isHash = stop.cta_url.startsWith("#");
-      const a = el("a", "btn btn--ghost", { href: stop.cta_url, target: isHash ? "_self" : "_blank", rel: "noopener" });
-      a.textContent = stop.cta_text;
+      const a = el("a", "btn btn--route", { href: stop.cta_url, target: isHash ? "_self" : "_blank", rel: "noopener" });
+      a.innerHTML = `<span><span class="routeBadge">66</span> ${stop.cta_text}</span>`;
       return a;
     }
 

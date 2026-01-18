@@ -1,12 +1,12 @@
 /***********************
- * app.js — Skyliner Motel (FULL DROP-IN)
- * - Keeps ALL functionality:
- *   SiteConfig, Alerts, Gallery, Reviews, Route66, Town, History
- * - Multi-page safe: skips mounts that don't exist
- * - Booking links are priority (top, hero, sticky, card, menu)
- * - Menu works with YOUR HTML IDs:
- *   #menuBtn, #menuOverlay, #menuPanel, #menuClose
- *   (also supports #menuBackdrop)
+ * app.js — Skyliner Motel (DROP-IN)
+ * Fixes:
+ * - Menu works (open/close, overlay click, ESC, body scroll lock)
+ * - Reviews rotate automatically, DOTS work, and 5 stars are INSIDE the bubble
+ * - Gallery filters by page (home/town/history/etc) so Town won't show room pics
+ * - Town + History render using your EXISTING CSS classes (.card, .timeline, etc)
+ * - Route66 unchanged + still animated
+ * - Keeps booking links priority everywhere (top/hero/sticky/card/menu)
  ***********************/
 
 (() => {
@@ -163,24 +163,43 @@
     return e;
   }
 
-  /********** MENU (FIXED FOR YOUR IDS) **********/
+  function getPageKey(){
+    const raw = (document.body && document.body.dataset && document.body.dataset.page) ? document.body.dataset.page : "";
+    const k = String(raw || "").trim().toLowerCase();
+    if (!k) return "home";
+    if (k === "stay") return "home";
+    return k;
+  }
+
+  /********** MENU (YOUR IDS) **********/
   function initMenu(){
-    const btn = $("menuBtn") || document.querySelector("[data-menu-btn]");
-    const panel = $("menuPanel") || document.querySelector("[data-menu-panel]");
-    const overlay = $("menuOverlay") || $("menuBackdrop") || document.querySelector("[data-menu-backdrop]") || document.querySelector("[data-menu-overlay]");
+    const btn = $("menuBtn");
+    const panel = $("menuPanel");
+    const overlay = $("menuOverlay");
     const closeBtn = $("menuClose");
 
     if (!btn || !panel) return;
 
+    const focusableSel = 'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])';
+    let lastFocus = null;
+
     const open = () => {
+      lastFocus = document.activeElement;
+
       panel.hidden = false;
       if (overlay) overlay.hidden = false;
 
-      panel.classList.add("is-open");
-      if (overlay) overlay.classList.add("is-open");
+      requestAnimationFrame(() => {
+        panel.classList.add("is-open");
+        if (overlay) overlay.classList.add("is-open");
+      });
 
       btn.setAttribute("aria-expanded","true");
       document.body.classList.add("menu-open");
+
+      // focus first link/button inside panel
+      const first = panel.querySelector(focusableSel);
+      if (first) first.focus({ preventScroll: true });
     };
 
     const close = () => {
@@ -190,11 +209,11 @@
       btn.setAttribute("aria-expanded","false");
       document.body.classList.remove("menu-open");
 
-      // hide after tiny delay (keeps animations possible)
       window.setTimeout(()=>{
         panel.hidden = true;
         if (overlay) overlay.hidden = true;
-      }, 10);
+        if (lastFocus && lastFocus.focus) lastFocus.focus({ preventScroll: true });
+      }, 160);
     };
 
     const toggle = () => {
@@ -202,11 +221,13 @@
       isOpen ? close() : open();
     };
 
-    btn.addEventListener("click", (e)=>{ e.preventDefault(); e.stopPropagation(); toggle(); });
+    btn.addEventListener("click", (e)=>{ e.preventDefault(); toggle(); });
     if (overlay) overlay.addEventListener("click", close);
     if (closeBtn) closeBtn.addEventListener("click", close);
 
-    document.addEventListener("keydown", (e)=>{ if (e.key === "Escape") close(); });
+    document.addEventListener("keydown", (e)=>{
+      if (e.key === "Escape") close();
+    });
 
     panel.addEventListener("click", (e)=>{
       const a = e.target && e.target.closest ? e.target.closest("a") : null;
@@ -222,11 +243,11 @@
     setText("tagline", cfg.tagline);
     setText("heroTitle", cfg.motel_name);
     setText("footerBrand", cfg.motel_name);
+    setText("menuTitle", cfg.motel_name);
 
     const phoneDigits = (cfg.phone || "").replace(/[^0-9+]/g, "");
     const telHref = phoneDigits ? `tel:${phoneDigits}` : "tel:";
-    setAttr("phoneLink","href",telHref);
-    setAttr("phoneText","href",telHref);
+    ["phoneLink","phoneText","phoneLink2"].forEach(id => setAttr(id,"href",telHref));
     setText("phoneText", cfg.phone);
 
     const address = `${cfg.address_line} ${cfg.city_state_zip}`.trim();
@@ -234,13 +255,11 @@
       ? safeUrl(cfg.google_maps_embed_url)
       : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
 
-    setAttr("mapsLink","href",mapsUrl);
-    setAttr("addressText","href",mapsUrl);
+    ["mapsLink","mapsLink2","addressText"].forEach(id => setAttr(id,"href",mapsUrl));
     setText("addressText", cfg.address_line);
 
     const bookingUrl = safeUrl(cfg.booking_url) || "#";
-    ["bookNowTop","bookNowHero","stickyBook","bookingCard","bookNowFooter","menuBookNow"]
-      .forEach(id => setAttr(id,"href",bookingUrl));
+    ["bookNowTop","bookNowHero","stickyBook","bookingCard","bookNowMenu"].forEach(id => setAttr(id,"href",bookingUrl));
 
     setText("stickyBookLabel", cfg.sticky_booking_text || "BOOK NOW");
     setText("footerAddress", `${cfg.address_line} • ${cfg.city_state_zip}`);
@@ -283,14 +302,30 @@
     bar.hidden = false;
   }
 
-  /********** MINI GALLERY **********/
+  /********** MINI GALLERY (FILTER BY PAGE) **********/
+  function normalizeGalleryPage(p){
+    const s = String(p || "").trim().toLowerCase();
+    if (!s) return "";
+    if (s === "stay") return "home";
+    return s;
+  }
+
   function renderMiniGallery(galleryRows){
     const section = $("miniGallerySection");
     const mount = $("miniGalleryMount");
     if (!section || !mount) return;
 
-    const items = (galleryRows || [])
-      .filter(r => (r.image_url || "").trim())
+    const page = getPageKey();
+
+    const cleaned = (galleryRows || [])
+      .map(r => ({...r, _page: normalizeGalleryPage(r.page)}))
+      .filter(r => (r.image_url || "").trim());
+
+    // Rule:
+    // - If row has a page value, it MUST match the current page.
+    // - If row has NO page value, we only show it on HOME (prevents Town showing room pics).
+    const items = cleaned
+      .filter(r => (r._page ? (r._page === page) : (page === "home")))
       .sort((a,b)=> (Number(a.order)||0) - (Number(b.order)||0));
 
     if (!items.length){ section.hidden = true; return; }
@@ -304,7 +339,7 @@
       img.loading = "lazy";
       img.decoding = "async";
       img.src = it.image_url;
-      img.alt = (it.alt || it.caption || "Motel photo").trim();
+      img.alt = (it.alt || it.caption || "Photo").trim();
 
       thumb.appendChild(img);
       item.appendChild(thumb);
@@ -322,50 +357,93 @@
     section.hidden = false;
   }
 
-  /********** REVIEWS (stars inside bubble) **********/
+  /********** REVIEWS (INSIDE BUBBLE, AUTO ROTATE, DOTS) **********/
   function renderReviews(reviewsRows){
-    const section = $("reviewsSection");
-    const mount = $("reviewsMount");
-    if (!section || !mount) return;
+    const track = $("reviewsTrack");     // index.html has this
+    const dotsMount = $("reviewsDots");  // index.html has this
+    if (!track) return;
 
     const items = (reviewsRows || [])
       .filter(r => String(r.active || "true").toLowerCase() !== "false" && (r.quote || "").trim())
       .sort((a,b)=> (Number(a.order)||0) - (Number(b.order)||0));
 
-    if (!items.length){ section.hidden = true; return; }
+    if (!items.length){
+      // keep section but empty; no weird text
+      track.innerHTML = "";
+      if (dotsMount) dotsMount.innerHTML = "";
+      return;
+    }
 
-    mount.innerHTML = "";
-    const track = el("div","reviewsTrack",{"aria-label":"Guest reviews"});
+    track.innerHTML = "";
+    if (dotsMount) dotsMount.innerHTML = "";
+
+    const bubbles = [];
 
     items.forEach((r, idx)=>{
-      const bubble = el("article","reviewBubble",{"data-index": String(idx)});
-      const stars = el("div","reviewStars",{"aria-label":"5 out of 5 stars"});
+      const bubble = el("article","reviewBubble");
+      // Stars INSIDE bubble (5 stars always)
+      const stars = el("div","reviewBubble__stars",{"aria-label":"5 out of 5 stars"});
       stars.textContent = "★★★★★";
 
-      const quote = el("div","reviewQuote");
+      const quote = el("p","reviewBubble__body");
       quote.textContent = r.quote;
 
-      const meta = el("div","reviewMeta");
-      const parts = [(r.name||"").trim(), (r.source||"").trim(), (r.date||"").trim()].filter(Boolean);
-      meta.textContent = parts.join(" • ");
+      const meta = el("div","reviewBubble__meta");
+      const left = el("div","reviewBubble__who");
+      const right = el("div","reviewBubble__when");
+
+      left.textContent = (r.name || "").trim();
+      const rightParts = [(r.source||"").trim(), (r.date||"").trim()].filter(Boolean);
+      right.textContent = rightParts.join(" • ");
+
+      meta.appendChild(left);
+      meta.appendChild(right);
 
       bubble.appendChild(stars);
       bubble.appendChild(quote);
       bubble.appendChild(meta);
+
       track.appendChild(bubble);
+      bubbles.push(bubble);
+
+      if (dotsMount){
+        const d = el("div","dot",{"data-idx": String(idx), "aria-hidden":"true"});
+        dotsMount.appendChild(d);
+      }
     });
 
-    mount.appendChild(track);
-    section.hidden = false;
+    let index = 0;
 
-    // auto advance
+    const setActive = (i) => {
+      index = i;
+      const x = -100 * index;
+      track.style.transform = `translateX(${x}%)`;
+
+      if (dotsMount){
+        const dots = dotsMount.querySelectorAll(".dot");
+        dots.forEach((d, di)=> d.classList.toggle("is-on", di === index));
+      }
+    };
+
+    // click dots
+    if (dotsMount){
+      dotsMount.addEventListener("click", (e)=>{
+        const dot = e.target && e.target.closest ? e.target.closest(".dot") : null;
+        if (!dot) return;
+        const i = Number(dot.getAttribute("data-idx"));
+        if (!Number.isFinite(i)) return;
+        setActive(i);
+      });
+    }
+
+    // initial
+    setActive(0);
+
+    // auto rotate
     if (items.length > 1){
-      let i = 0;
       window.setInterval(()=>{
-        i = (i + 1) % items.length;
-        const target = track.children[i];
-        if (target && target.scrollIntoView) target.scrollIntoView({behavior:"smooth", inline:"center", block:"nearest"});
-      }, 4500);
+        setActive((index + 1) % items.length);
+      }, 5200);
     }
   }
 
@@ -541,45 +619,37 @@
     if (firstBand) setThemeFromStateBand(firstBand);
   }
 
-  /********** TOWN (FULL: image/caption/cta/category) **********/
+  /********** TOWN (USE YOUR .card styles) **********/
   function renderTown(townRows){
     const mount = $("townMount");
     if (!mount) return;
 
     const items = (townRows || [])
       .filter(r => (r.title || r.body || r.image_url || "").trim())
-      .sort((a,b)=> (Number(a.order)||0) - (Number(b.order)||0));
+      .sort((a,b)=> (Number(a.order)||0) - (Number(a.order)||0));
 
     mount.innerHTML = "";
     if (!items.length) return;
 
     for (const it of items){
-      const card = el("article","townCard");
-      const inner = el("div","townCard__inner");
-
-      const cat = (it.category || "").trim();
-      if (cat){
-        const chip = el("div","townCard__category");
-        chip.textContent = cat;
-        inner.appendChild(chip);
-      }
+      const card = el("article","card neonCard");
 
       const title = (it.title || "").trim();
       if (title){
-        const h = el("h3","townCard__title");
+        const h = el("h3","card__title");
         h.textContent = title;
-        inner.appendChild(h);
+        card.appendChild(h);
       }
 
       const body = (it.body || "").trim();
       if (body){
-        const p = el("p","townCard__body");
+        const p = el("p","card__body");
         p.textContent = body;
-        inner.appendChild(p);
+        card.appendChild(p);
       }
 
       if ((it.image_url || "").trim()){
-        const media = el("div","townCard__media");
+        const media = el("div","card__media");
         const img = document.createElement("img");
         img.loading = "lazy";
         img.decoding = "async";
@@ -589,15 +659,16 @@
 
         const capText = (it.image_caption || "").trim();
         if (capText){
-          const cap = el("div","townCard__caption");
+          const cap = el("div","card__caption");
           cap.textContent = capText;
           media.appendChild(cap);
         }
-        inner.appendChild(media);
+
+        card.appendChild(media);
       }
 
       if ((it.cta_text || "").trim() && (it.cta_url || "").trim()){
-        const wrap = el("div","townCard__cta");
+        const wrap = el("div","card__cta");
         const a = el("a","btn btn--route",{
           href: it.cta_url,
           target: it.cta_url.startsWith("#") ? "_self" : "_blank",
@@ -605,15 +676,14 @@
         });
         a.innerHTML = `<span><span class="routeBadge">66</span> ${it.cta_text}</span>`;
         wrap.appendChild(a);
-        inner.appendChild(wrap);
+        card.appendChild(wrap);
       }
 
-      card.appendChild(inner);
       mount.appendChild(card);
     }
   }
 
-  /********** HISTORY (FULL: year/title/body/image/caption) **********/
+  /********** HISTORY (USE YOUR .timeline styles) **********/
   function renderHistory(historyRows){
     const mount = $("historyMount");
     if (!mount) return;
@@ -625,28 +695,33 @@
     mount.innerHTML = "";
     if (!items.length) return;
 
+    const wrap = el("div","timeline");
     for (const it of items){
-      const card = el("article","historyCard");
-      const inner = el("div","historyCard__inner");
+      const item = el("article","timelineItem neonCard");
 
       const year = (it.year || "").trim();
-      const title = (it.title || "").trim();
+      if (year){
+        const k = el("div","timelineItem__kicker");
+        k.textContent = year;
+        item.appendChild(k);
+      }
 
-      if (year || title){
-        const h = el("h3","historyCard__title");
-        h.textContent = year && title ? `${year} — ${title}` : (title || year);
-        inner.appendChild(h);
+      const title = (it.title || "").trim();
+      if (title){
+        const t = el("h3","timelineItem__title");
+        t.textContent = title;
+        item.appendChild(t);
       }
 
       const body = (it.body || "").trim();
       if (body){
-        const p = el("p","historyCard__body");
+        const p = el("p","timelineItem__body");
         p.textContent = body;
-        inner.appendChild(p);
+        item.appendChild(p);
       }
 
       if ((it.image_url || "").trim()){
-        const media = el("div","historyCard__media");
+        const media = el("div","timelineItem__media");
         const img = document.createElement("img");
         img.loading = "lazy";
         img.decoding = "async";
@@ -656,16 +731,18 @@
 
         const capText = (it.image_caption || "").trim();
         if (capText){
-          const cap = el("div","historyCard__caption");
+          const cap = el("div","card__caption");
           cap.textContent = capText;
           media.appendChild(cap);
         }
-        inner.appendChild(media);
+
+        item.appendChild(media);
       }
 
-      card.appendChild(inner);
-      mount.appendChild(card);
+      wrap.appendChild(item);
     }
+
+    mount.appendChild(wrap);
   }
 
   /********** LOAD EVERYTHING **********/
@@ -696,7 +773,7 @@
 
     let data = { site:null, stops:[], alerts:[], gallery:[], reviews:[], town:[], history:[] };
     try { data = await loadAll(); }
-    catch (err) { console.warn("Sheet load failed (using defaults):", err); }
+    catch (err) { console.warn("Sheet load failed (defaults):", err); }
 
     applySiteConfig(data.site);
     applyAlerts(data.alerts);

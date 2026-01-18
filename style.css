@@ -881,3 +881,84 @@ body[data-overlay="night"]{
     radial-gradient(1200px 800px at 85% 20%, rgba(80,220,255,0.12), transparent 60%),
     linear-gradient(180deg, #04060b 0%, #0a0d18 45%, #04060b 100%);
   }
+/* =========================
+   FIX: Menu button = BRIGHT + obvious
+========================= */
+.meta-link--menu{
+  border-color: rgba(57,213,255,0.70) !important;
+  background: rgba(57,213,255,0.12) !important;
+  box-shadow:
+    0 0 0 1px rgba(255,79,216,0.18) inset,
+    0 0 26px rgba(57,213,255,0.28),
+    0 0 22px rgba(255,79,216,0.18) !important;
+  font-weight: 1000 !important;
+}
+.meta-link--menu:hover{
+  filter: brightness(1.10);
+  box-shadow:
+    0 0 0 1px rgba(255,213,74,0.14) inset,
+    0 0 34px rgba(57,213,255,0.30),
+    0 0 26px rgba(255,79,216,0.20) !important;
+}
+
+/* =========================
+   FIX: Menu open/close visuals (uses .is-open + hidden)
+========================= */
+.menuOverlay{
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .16s ease;
+}
+.menuOverlay.is-open{
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.menuPanel{
+  transform: translateY(-10px) scale(0.98);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform .16s ease, opacity .16s ease;
+}
+.menuPanel.is-open{
+  transform: translateY(0) scale(1);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+body.menu-open{ overflow:hidden; }
+
+/* =========================
+   FIX: Reviews slider mechanics + stars inside bubble
+========================= */
+/* hide the big star row above if you want stars only INSIDE bubble */
+.reviews__stars{ display:none; }
+
+.reviews__track{
+  display:flex;
+  width: 100%;
+  gap: 0;
+  overflow: hidden;
+  transform: translateX(0);
+  transition: transform .55s ease;
+}
+
+.reviewBubble{
+  flex: 0 0 100%;
+}
+
+/* Stars inside the pill */
+.reviewBubble__stars{
+  display:inline-flex;
+  letter-spacing: 2px;
+  font-size: 14px;
+  color: var(--neonAmber);
+  text-shadow:
+    0 0 12px rgba(255,213,74,0.22),
+    0 0 14px rgba(255,79,216,0.14);
+  margin-bottom: 8px;
+}
+
+/* Meta layout keeps it clean */
+.reviewBubble__who{ opacity: .95; }
+.reviewBubble__when{ opacity: .85; text-align:right; }

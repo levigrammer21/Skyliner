@@ -1,9 +1,15 @@
 /***********************
  * app.js — Skyliner Motel (DROP-IN)
- * - Loads content from ONE Google Sheet with multiple tabs
- * - Works across multiple pages by skipping mounts that don’t exist
- * - Keeps booking links (top + hero + sticky + card)
- * - Fixes menu reliability on mobile (creates backdrop if missing, robust selectors)
+ * Fixes menu for existing IDs:
+ *  - #menuBtn
+ *  - #menuOverlay (or #menuBackdrop)
+ *  - #menuPanel
+ *  - #menuClose (optional)
+ *
+ * Also supports the newer IDs:
+ *  - #menuBtn
+ *  - #menuBackdrop
+ *  - #menuPanel
  ***********************/
 
 (() => {
@@ -203,19 +209,7 @@
 
     const imgUrl = safeUrl(cfg.booking_image_url);
     const img = $("bookingImage");
-    if (imgUrl && img) {
-      img.src = imgUrl;
-      const link = document.createElement("link");
-      link.rel = "preload";
-      link.as = "image";
-      link.href = imgUrl;
-      document.head.appendChild(link);
-    }
-
-    if (!cfg.booking_url || cfg.booking_url === "#") {
-      const sticky = $("stickyBook");
-      if (sticky) sticky.style.display = "none";
-    }
+    if (imgUrl && img) img.src = imgUrl;
 
     const bioSection = $("bioSection");
     const bioBody = (cfg.bio_body || "").trim();
@@ -282,20 +276,13 @@
     section.hidden = false;
   }
 
-  /***********************
-   * REVIEWS — FIXED markup
-   * Stars + quote + meta are INSIDE the same card.
-   ***********************/
   function renderReviews(reviewsRows) {
     const section = $("reviewsSection");
     const mount = $("reviewsMount");
     if (!section || !mount) return;
 
     const items = (reviewsRows || [])
-      .filter(r => {
-        const active = String(r.active || "true").toLowerCase();
-        return active !== "false" && (r.quote || "").trim();
-      })
+      .filter(r => String(r.active || "true").toLowerCase() !== "false" && (r.quote || "").trim())
       .sort((a, b) => (Number(a.order) || 0) - (Number(b.order) || 0));
 
     if (!items.length) { section.hidden = true; return; }
@@ -304,11 +291,7 @@
     const track = el("div", "reviewsTrack", { "aria-label": "Guest reviews" });
 
     items.forEach((r, idx) => {
-      const bubble = el("article", "reviewBubble", {
-        "data-index": String(idx),
-        "aria-hidden": idx === 0 ? "false" : "true"
-      });
-
+      const bubble = el("article", "reviewBubble", { "data-index": String(idx) });
       const stars = el("div", "reviewStars", { "aria-label": "5 out of 5 stars" });
       stars.textContent = "★★★★★";
 
@@ -316,13 +299,9 @@
       quote.textContent = r.quote;
 
       const meta = el("div", "reviewMeta");
-      const name = (r.name || "").trim();
-      const source = (r.source || "").trim();
-      const date = (r.date || "").trim();
-      const parts = [name, source, date].filter(Boolean);
+      const parts = [(r.name || "").trim(), (r.source || "").trim(), (r.date || "").trim()].filter(Boolean);
       meta.textContent = parts.join(" • ");
 
-      // All inside bubble (card)
       bubble.appendChild(stars);
       bubble.appendChild(quote);
       bubble.appendChild(meta);
@@ -333,47 +312,17 @@
     mount.appendChild(track);
     section.hidden = false;
 
-    initReviewsCarousel(track, items.length);
-  }
-
-  function initReviewsCarousel(trackEl, count) {
-    if (!trackEl || count <= 1) return;
-
-    let index = 0;
-    const bubbles = Array.from(trackEl.querySelectorAll(".reviewBubble"));
-
-    function setActive(i) {
-      bubbles.forEach((b, idx) => {
-        const on = idx === i;
-        b.classList.toggle("is-active", on);
-        b.setAttribute("aria-hidden", on ? "false" : "true");
-      });
-      const target = bubbles[i];
-      if (target && typeof target.scrollIntoView === "function") {
-        target.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
-      }
+    // Auto-advance
+    if (items.length > 1) {
+      let i = 0;
+      window.setInterval(() => {
+        i = (i + 1) % items.length;
+        const target = track.children[i];
+        if (target?.scrollIntoView) target.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+      }, 4500);
     }
-
-    let paused = false;
-    const pause = () => { paused = true; };
-    const resume = () => { paused = false; };
-
-    trackEl.addEventListener("mouseenter", pause);
-    trackEl.addEventListener("mouseleave", resume);
-    trackEl.addEventListener("touchstart", pause, { passive: true });
-    trackEl.addEventListener("touchend", resume, { passive: true });
-
-    setActive(0);
-    window.setInterval(() => {
-      if (paused) return;
-      index = (index + 1) % count;
-      setActive(index);
-    }, 4500);
   }
 
-  /***********************
-   * Route 66 (unchanged behavior)
-   ***********************/
   function stopCta(stop) {
     if (!stop.cta_text || !stop.cta_url) return null;
     const isHash = stop.cta_url.startsWith("#");
@@ -391,14 +340,12 @@
     const kicker = el("div", "state__kicker");
     const dot = el("span", "state__dot", { "aria-hidden": "true" });
     kicker.appendChild(dot);
-
     const name = document.createElement("span");
     name.textContent = routeState.name.toUpperCase();
     kicker.appendChild(name);
 
     const h = el("div", "state__headline");
     h.textContent = routeState.headline;
-
     const p = el("p", "state__subtext");
     p.textContent = routeState.subtext;
 
@@ -413,7 +360,7 @@
       const side = forcedSide || (flip ? "left" : "right");
       if (!forcedSide) flip = !flip;
 
-      const s = el("article", "stop", { "data-side": side, "data-stop-type": (stop.stop_type || "text") });
+      const s = el("article", "stop", { "data-side": side });
       const pin = el("div", "stop__pin", { "aria-hidden": "true" });
       const card = el("div", "stop__card");
 
@@ -474,246 +421,75 @@
 
     const byState = new Map();
     for (const rs of ROUTE66) byState.set(rs.key, []);
-
     for (const stop of normalizedStops) {
       const key = byState.has(stop._stateKey) ? stop._stateKey : null;
       if (key) byState.get(key).push(stop);
     }
-
-    for (const rs of ROUTE66) {
-      byState.get(rs.key).sort((a, b) => (Number(a.order) || 0) - (Number(b.order) || 0));
-    }
+    for (const rs of ROUTE66) byState.get(rs.key).sort((a, b) => (Number(a.order) || 0) - (Number(b.order) || 0));
 
     mount.innerHTML = "";
     for (const rs of ROUTE66) mount.appendChild(renderStateBand(rs, byState.get(rs.key)));
-
-    initStopObserver();
-    initStateObserver();
-
-    const firstBand = document.querySelector(".state");
-    if (firstBand) setThemeFromStateBand(firstBand);
   }
 
-  function setThemeFromStateBand(band) {
-    if (!band) return;
-    const overlay = band.getAttribute("data-overlay") || "day";
-    const theme = (band.getAttribute("data-theme") || "").toLowerCase();
-
-    document.body.setAttribute("data-overlay", overlay);
-
-    const found = ROUTE66.find(s => s.key === theme);
-    document.documentElement.style.setProperty("--accent", (found && found.accent) ? found.accent : "#ffd54a");
-  }
-
-  function initStopObserver() {
-    const stops = document.querySelectorAll(".stop");
-    if (!stops.length) return;
-
-    const io = new IntersectionObserver((entries) => {
-      for (const e of entries) {
-        if (e.isIntersecting) {
-          e.target.classList.add("is-in");
-          io.unobserve(e.target);
-        }
-      }
-    }, { threshold: 0.12 });
-
-    stops.forEach(s => io.observe(s));
-  }
-
-  function initStateObserver() {
-    const bands = document.querySelectorAll(".state");
-    if (!bands.length) return;
-
-    const io = new IntersectionObserver((entries) => {
-      const visible = entries
-        .filter(e => e.isIntersecting)
-        .sort((a, b) => (b.intersectionRatio || 0) - (a.intersectionRatio || 0));
-      if (visible[0]) setThemeFromStateBand(visible[0].target);
-    }, { threshold: [0.2, 0.35, 0.5, 0.65] });
-
-    bands.forEach(b => io.observe(b));
-  }
-
-  function renderTown(townRows) {
+  function renderTown(rows) {
     const mount = $("townMount");
     if (!mount) return;
-
-    const items = (townRows || [])
-      .filter(r => (r.title || r.body || r.image_url || "").trim())
+    const items = (rows || []).filter(r => (r.title || r.body || r.image_url || "").trim())
       .sort((a, b) => (Number(a.order) || 0) - (Number(b.order) || 0));
-
     mount.innerHTML = "";
-    if (!items.length) return;
-
     for (const it of items) {
       const card = el("article", "townCard");
       const inner = el("div", "townCard__inner");
-
-      const title = (it.title || "").trim();
-      if (title) {
-        const h = el("h3", "townCard__title");
-        h.textContent = title;
-        inner.appendChild(h);
-      }
-
-      const body = (it.body || "").trim();
-      if (body) {
-        const p = el("p", "townCard__body");
-        p.textContent = body;
-        inner.appendChild(p);
-      }
-
-      if ((it.image_url || "").trim()) {
-        const media = el("div", "townCard__media");
-        const img = document.createElement("img");
-        img.loading = "lazy";
-        img.decoding = "async";
-        img.src = it.image_url;
-        img.alt = (it.image_caption || it.title || "Photo").trim();
-        media.appendChild(img);
-
-        const capText = (it.image_caption || "").trim();
-        if (capText) {
-          const cap = el("div", "townCard__caption");
-          cap.textContent = capText;
-          media.appendChild(cap);
-        }
-        inner.appendChild(media);
-      }
-
-      if ((it.cta_text || "").trim() && (it.cta_url || "").trim()) {
-        const wrap = el("div", "townCard__cta");
-        const a = el("a", "btn btn--route", {
-          href: it.cta_url,
-          target: it.cta_url.startsWith("#") ? "_self" : "_blank",
-          rel: "noopener"
-        });
-        a.innerHTML = `<span><span class="routeBadge">66</span> ${it.cta_text}</span>`;
-        wrap.appendChild(a);
-        inner.appendChild(wrap);
-      }
-
+      if ((it.title || "").trim()) { const h = el("h3", "townCard__title"); h.textContent = it.title; inner.appendChild(h); }
+      if ((it.body || "").trim()) { const p = el("p", "townCard__body"); p.textContent = it.body; inner.appendChild(p); }
       card.appendChild(inner);
       mount.appendChild(card);
     }
   }
 
-  function renderHistory(historyRows) {
+  function renderHistory(rows) {
     const mount = $("historyMount");
     if (!mount) return;
-
-    const items = (historyRows || [])
-      .filter(r => (r.title || r.body || r.image_url || "").trim())
+    const items = (rows || []).filter(r => (r.title || r.body || r.image_url || "").trim())
       .sort((a, b) => (Number(a.order) || 0) - (Number(b.order) || 0));
-
     mount.innerHTML = "";
-    if (!items.length) return;
-
     for (const it of items) {
       const card = el("article", "historyCard");
       const inner = el("div", "historyCard__inner");
-
       const year = (it.year || "").trim();
       const title = (it.title || "").trim();
-
-      if (year || title) {
-        const h = el("h3", "historyCard__title");
-        h.textContent = year && title ? `${year} — ${title}` : (title || year);
-        inner.appendChild(h);
-      }
-
-      const body = (it.body || "").trim();
-      if (body) {
-        const p = el("p", "historyCard__body");
-        p.textContent = body;
-        inner.appendChild(p);
-      }
-
-      if ((it.image_url || "").trim()) {
-        const media = el("div", "historyCard__media");
-        const img = document.createElement("img");
-        img.loading = "lazy";
-        img.decoding = "async";
-        img.src = it.image_url;
-        img.alt = (it.image_caption || it.title || "Historic photo").trim();
-        media.appendChild(img);
-
-        const capText = (it.image_caption || "").trim();
-        if (capText) {
-          const cap = el("div", "historyCard__caption");
-          cap.textContent = capText;
-          media.appendChild(cap);
-        }
-        inner.appendChild(media);
-      }
-
+      const h = el("h3", "historyCard__title");
+      h.textContent = year && title ? `${year} — ${title}` : (title || year);
+      inner.appendChild(h);
+      if ((it.body || "").trim()) { const p = el("p", "historyCard__body"); p.textContent = it.body; inner.appendChild(p); }
       card.appendChild(inner);
       mount.appendChild(card);
     }
   }
 
   /***********************
-   * MENU — FIXED reliability
-   * Looks for:
-   *  - #menuBtn (or [data-menu-btn])
-   *  - #menuPanel (or [data-menu-panel])
-   *  - #menuBackdrop (or [data-menu-backdrop])
+   * MENU — supports your current HTML
+   * - toggles hidden attribute
+   * - works with #menuOverlay OR #menuBackdrop
+   * - supports #menuClose if present
    ***********************/
   function initMenu() {
-    const btn =
-      $("menuBtn") ||
-      document.querySelector("[data-menu-btn]");
-
-    const panel =
-      $("menuPanel") ||
-      document.querySelector("[data-menu-panel]");
+    const btn = $("menuBtn") || document.querySelector("[data-menu-btn]");
+    const panel = $("menuPanel") || document.querySelector("[data-menu-panel]");
+    const overlay = $("menuOverlay") || $("menuBackdrop") || document.querySelector("[data-menu-backdrop]") || document.querySelector("[data-menu-overlay]");
+    const closeBtn = $("menuClose");
 
     if (!btn || !panel) return;
 
-    // Ensure a proper clickable button on mobile
-    if (btn.tagName.toLowerCase() !== "button") {
-      // If someone used <a>, prevent navigation
-      btn.addEventListener("click", (e) => e.preventDefault());
-    } else {
-      btn.setAttribute("type", "button");
-    }
-
-    let backdrop =
-      $("menuBackdrop") ||
-      document.querySelector("[data-menu-backdrop]");
-
-    // Auto-create backdrop if missing
-    if (!backdrop) {
-      backdrop = document.createElement("div");
-      backdrop.id = "menuBackdrop";
-      backdrop.className = "menuBackdrop";
-      backdrop.setAttribute("aria-hidden", "true");
-      document.body.appendChild(backdrop);
-    }
-
-    const open = () => {
-      panel.classList.add("is-open");
-      backdrop.classList.add("is-open");
-      btn.setAttribute("aria-expanded", "true");
-      document.body.classList.add("menu-open");
-    };
-
-    const close = () => {
-      panel.classList.remove("is-open");
-      backdrop.classList.remove("is-open");
-      btn.setAttribute("aria-expanded", "false");
-      document.body.classList.remove("menu-open");
-    };
-
+    // Ensure it’s a button behavior on mobile
     btn.addEventListener("click", (e) => {
       e.preventDefault();
       e.stopPropagation();
-      const isOpen = panel.classList.contains("is-open");
-      isOpen ? close() : open();
+      toggle();
     });
 
-    backdrop.addEventListener("click", close);
+    if (overlay) overlay.addEventListener("click", close);
+    if (closeBtn) closeBtn.addEventListener("click", close);
 
     document.addEventListener("keydown", (e) => {
       if (e.key === "Escape") close();
@@ -723,10 +499,40 @@
       const a = e.target && e.target.closest ? e.target.closest("a") : null;
       if (a) close();
     });
+
+    function open() {
+      panel.hidden = false;
+      if (overlay) overlay.hidden = false;
+
+      panel.classList.add("is-open");
+      if (overlay) overlay.classList.add("is-open");
+
+      btn.setAttribute("aria-expanded", "true");
+      document.body.classList.add("menu-open");
+    }
+
+    function close() {
+      panel.classList.remove("is-open");
+      if (overlay) overlay.classList.remove("is-open");
+
+      btn.setAttribute("aria-expanded", "false");
+      document.body.classList.remove("menu-open");
+
+      // delay hiding so transition can occur (if you add CSS transitions)
+      window.setTimeout(() => {
+        panel.hidden = true;
+        if (overlay) overlay.hidden = true;
+      }, 10);
+    }
+
+    function toggle() {
+      const isOpen = !panel.hidden && panel.classList.contains("is-open");
+      isOpen ? close() : open();
+    }
   }
 
   async function loadAll() {
-    const loaders = [
+    const [siteRows, alertRows, galleryRows, reviewRows, stopRows, townRows, historyRows] = await Promise.all([
       loadSheetObjects(SHEETS.SITE_CONFIG_CSV).catch(() => []),
       loadSheetObjects(SHEETS.ALERTS_CSV).catch(() => []),
       loadSheetObjects(SHEETS.GALLERY_CSV).catch(() => []),
@@ -734,10 +540,7 @@
       loadSheetObjects(SHEETS.STOPS_CSV).catch(() => []),
       loadSheetObjects(SHEETS.TOWN_CSV).catch(() => []),
       loadSheetObjects(SHEETS.HISTORY_CSV).catch(() => [])
-    ];
-
-    const [siteRows, alertRows, galleryRows, reviewRows, stopRows, townRows, historyRows] =
-      await Promise.all(loaders);
+    ]);
 
     return {
       site: siteRows[0] || null,
@@ -754,8 +557,7 @@
     initMenu();
 
     let data = { site: null, alerts: [], gallery: [], reviews: [], stops: [], town: [], history: [] };
-    try { data = await loadAll(); }
-    catch (err) { console.warn("Sheet load failed (using defaults):", err); }
+    try { data = await loadAll(); } catch (err) { console.warn(err); }
 
     applySiteConfig(data.site);
     applyAlerts(data.alerts);

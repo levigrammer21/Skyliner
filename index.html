@@ -278,6 +278,105 @@
       box-shadow: 0 0 22px rgba(255,79,216,0.10);
     }
 
+    /* ========= NEW: MINI SWIPE GALLERY (added) ========= */
+    .miniGallery{
+      max-width:var(--max);
+      margin: 12px auto 0;
+      padding: 0 14px;
+    }
+    .miniGallery__card{
+      border-radius: var(--radius);
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.10);
+      box-shadow: var(--shadow);
+      padding: 14px;
+      position:relative;
+      overflow:hidden;
+    }
+    .miniGallery__card::before{
+      content:"";
+      position:absolute; inset:-2px;
+      border-radius: calc(var(--radius) + 2px);
+      background: linear-gradient(90deg,
+        rgba(57,213,255,0.18),
+        rgba(255,79,216,0.16),
+        rgba(255,213,74,0.12)
+      );
+      opacity: 0.14;
+      filter: blur(12px);
+      pointer-events:none;
+    }
+    .miniGallery__header{
+      display:flex;
+      align-items:baseline;
+      justify-content:space-between;
+      gap:10px;
+      position:relative;
+      z-index:1;
+    }
+    .miniGallery__title{
+      margin:0;
+      font-size:14px;
+      font-weight:1000;
+      letter-spacing:0.2px;
+    }
+    .miniGallery__hint{
+      color: rgba(255,255,255,0.65);
+      font-size:12px;
+      font-weight:700;
+      white-space:nowrap;
+    }
+    .miniGallery__scroller{
+      margin-top: 10px;
+      display:flex;
+      gap: 10px;
+      overflow-x:auto;
+      -webkit-overflow-scrolling: touch;
+      scroll-snap-type: x mandatory;
+      padding-bottom: 6px;
+      position:relative;
+      z-index:1;
+    }
+    .miniGallery__scroller::-webkit-scrollbar{ height: 8px; }
+    .miniGallery__scroller::-webkit-scrollbar-thumb{
+      background: rgba(255,255,255,0.12);
+      border-radius: 999px;
+    }
+    .miniGallery__item{
+      flex: 0 0 auto;
+      width: 96px;
+      scroll-snap-align: start;
+    }
+    .miniGallery__thumb{
+      width: 96px;
+      aspect-ratio: 1 / 1;
+      border-radius: 16px;
+      overflow:hidden;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(0,0,0,0.20);
+      box-shadow: 0 10px 28px rgba(0,0,0,0.20);
+      position:relative;
+    }
+    .miniGallery__thumb img{
+      width:100%;
+      height:100%;
+      object-fit: cover;
+      transform: scale(1.01);
+    }
+    .miniGallery__caption{
+      margin-top: 6px;
+      font-size: 11px;
+      color: rgba(255,255,255,0.70);
+      line-height: 1.25;
+      max-width: 96px;
+    }
+    @media (min-width: 860px){
+      .miniGallery{ padding: 0; }
+      .miniGallery__item{ width: 110px; }
+      .miniGallery__thumb{ width: 110px; border-radius: 18px; }
+      .miniGallery__caption{ max-width: 110px; }
+    }
+
     /* ========= BIO (NEW) ========= */
     .bio{
       max-width:var(--max);
@@ -495,6 +594,7 @@
       .stickyBook{ right: 22px; bottom: 22px; }
       .footer__right{ display:none; } /* still hidden on desktop */
       .bio{ padding: 0; } /* align to max container already */
+      .miniGallery{ padding: 0; } /* align gallery on desktop */
     }
 
     /* Global day/sunset/night overlays controlled by scroll */
@@ -574,6 +674,17 @@
         </a>
       </div>
 
+      <!-- NEW: Gallery section (between sign image and About/Bio) -->
+      <div class="miniGallery" id="miniGallerySection" hidden>
+        <div class="miniGallery__card">
+          <div class="miniGallery__header">
+            <h3 class="miniGallery__title" id="miniGalleryTitle">More photos</h3>
+            <div class="miniGallery__hint">Swipe ↔</div>
+          </div>
+          <div class="miniGallery__scroller" id="miniGalleryMount" aria-label="Motel photo gallery"></div>
+        </div>
+      </div>
+
       <!-- NEW: BIO section (sits directly under sign image area) -->
       <div class="bio" id="bioSection" hidden>
         <div class="bio__card">
@@ -621,10 +732,10 @@
   <script>
     /***********************
      * SHEET (baseball-style)
-     * ONE sheet, multiple tabs: SiteConfig, Stops, Alerts
+     * ONE sheet, multiple tabs: SiteConfig, Stops, Alerts, Gallery
      ***********************/
     const SHEET_ID = "12xCdrziWioRE3SxEeRyZgIvsFxz_gXIfvp5_7yUXXf8";
-    const TAB = { SITE: "SiteConfig", STOPS: "Stops", ALERTS: "Alerts" };
+    const TAB = { SITE: "SiteConfig", STOPS: "Stops", ALERTS: "Alerts", GALLERY: "Gallery" };
 
     function gvizCsvUrl(sheetName){
       const base = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq`;
@@ -639,7 +750,8 @@
     const SHEETS = {
       SITE_CONFIG_CSV: gvizCsvUrl(TAB.SITE),
       STOPS_CSV: gvizCsvUrl(TAB.STOPS),
-      ALERTS_CSV: gvizCsvUrl(TAB.ALERTS)
+      ALERTS_CSV: gvizCsvUrl(TAB.ALERTS),
+      GALLERY_CSV: gvizCsvUrl(TAB.GALLERY) /* NEW */
     };
 
     const DEFAULTS = {
@@ -740,12 +852,18 @@
     }
 
     async function loadAll(){
-      const [siteRows, stopRows, alertRows] = await Promise.all([
+      const [siteRows, stopRows, alertRows, galleryRows] = await Promise.all([
         loadSheetObjects(SHEETS.SITE_CONFIG_CSV),
         loadSheetObjects(SHEETS.STOPS_CSV),
-        loadSheetObjects(SHEETS.ALERTS_CSV).catch(()=>[])
+        loadSheetObjects(SHEETS.ALERTS_CSV).catch(()=>[]),
+        loadSheetObjects(SHEETS.GALLERY_CSV).catch(()=>[]) /* NEW: safe if missing */
       ]);
-      return { site: siteRows[0] || null, stops: stopRows || [], alerts: alertRows || [] };
+      return {
+        site: siteRows[0] || null,
+        stops: stopRows || [],
+        alerts: alertRows || [],
+        gallery: galleryRows || [] /* NEW */
+      };
     }
 
     function setText(id, value){
@@ -958,6 +1076,48 @@
       }
     }
 
+    /* ========= NEW: render mini gallery from Gallery tab ========= */
+    function renderMiniGallery(galleryRows){
+      const section = document.getElementById("miniGallerySection");
+      const mount = document.getElementById("miniGalleryMount");
+      if (!section || !mount) return;
+
+      const items = (galleryRows || [])
+        .filter(r => (r.image_url || "").trim())
+        .sort((a,b)=> (Number(a.order)||0) - (Number(b.order)||0));
+
+      if (!items.length){
+        section.hidden = true;
+        return;
+      }
+
+      mount.innerHTML = "";
+      for (const it of items){
+        const item = el("div","miniGallery__item");
+        const thumb = el("div","miniGallery__thumb");
+
+        const img = document.createElement("img");
+        img.loading = "lazy";
+        img.decoding = "async";
+        img.src = it.image_url;
+        img.alt = (it.alt || it.caption || "Motel photo").trim();
+
+        thumb.appendChild(img);
+        item.appendChild(thumb);
+
+        const capText = (it.caption || "").trim();
+        if (capText){
+          const cap = el("div","miniGallery__caption");
+          cap.textContent = capText;
+          item.appendChild(cap);
+        }
+
+        mount.appendChild(item);
+      }
+
+      section.hidden = false;
+    }
+
     function applyAlerts(alerts){
       const bar = document.getElementById("alertBar");
       const text = document.getElementById("alertText");
@@ -1011,11 +1171,12 @@
     }
 
     (async function main(){
-      let data = { site:null, stops:[], alerts:[] };
+      let data = { site:null, stops:[], alerts:[], gallery:[] };
       try { data = await loadAll(); }
       catch (err) { console.warn("Sheet load failed (using defaults):", err); }
 
       applySiteConfig(data.site);
+      renderMiniGallery(data.gallery); /* NEW */
       renderRoute66Journey(data.stops);
       applyAlerts(data.alerts);
 

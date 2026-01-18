@@ -1,1 +1,898 @@
+/***********************
+ * app.js — Skyliner Motel
+ * - Keeps all booking functionality (top + sticky + card)
+ * - Loads content from ONE Google Sheet with multiple tabs
+ * - Works across multiple HTML pages (index / town / route66 / history)
+ *   by detecting which mounts exist on the current page.
+ *
+ * Expected Google Sheet tabs:
+ *  - SiteConfig
+ *  - Alerts
+ *  - Gallery
+ *  - Reviews
+ *  - Stops        (Route 66 scroll page)
+ *  - Town         (Things to see in town page)
+ *  - History      (Motel history page)
+ *
+ * This file is defensive: if a section/mount doesn’t exist on the page,
+ * it silently skips it (so the same app.js can be used on every page).
+ ***********************/
 
+(() => {
+  /***********************
+   * SHEET CONFIG
+   ***********************/
+  const SHEET_ID = "12xCdrziWioRE3SxEeRyZgIvsFxz_gXIfvp5_7yUXXf8";
+
+  const TAB = {
+    SITE: "SiteConfig",
+    ALERTS: "Alerts",
+    GALLERY: "Gallery",
+    REVIEWS: "Reviews",
+    STOPS: "Stops",
+    TOWN: "Town",
+    HISTORY: "History"
+  };
+
+  function gvizCsvUrl(sheetName) {
+    const base = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq`;
+    const params = new URLSearchParams({
+      tqx: "out:csv",
+      sheet: sheetName,
+      cb: String(Date.now())
+    });
+    return `${base}?${params.toString()}`;
+  }
+
+  const SHEETS = {
+    SITE_CONFIG_CSV: gvizCsvUrl(TAB.SITE),
+    ALERTS_CSV: gvizCsvUrl(TAB.ALERTS),
+    GALLERY_CSV: gvizCsvUrl(TAB.GALLERY),
+    REVIEWS_CSV: gvizCsvUrl(TAB.REVIEWS),
+    STOPS_CSV: gvizCsvUrl(TAB.STOPS),
+    TOWN_CSV: gvizCsvUrl(TAB.TOWN),
+    HISTORY_CSV: gvizCsvUrl(TAB.HISTORY)
+  };
+
+  const DEFAULTS = {
+    motel_name: "Skyliner Motel",
+    tagline: "Clean, comfortable stays on Route 66",
+    phone: "(555) 123-4567",
+    address_line: "123 Historic Route 66",
+    city_state_zip: "Your City, ST 00000",
+    booking_url: "#",
+    booking_image_url: "",
+    sticky_booking_text: "BOOK NOW",
+    google_maps_embed_url: "",
+    bio_title: "About Skyliner Motel",
+    bio_body: ""
+  };
+
+  /***********************
+   * ROUTE 66 BANDS (for route66 page)
+   ***********************/
+  const ROUTE66 = [
+    { key: "illinois", name: "Illinois", overlay: "day", accent: "#ffd54a", headline: "Chicago to the open road", subtext: "Your journey begins on the Mother Road." },
+    { key: "missouri", name: "Missouri", overlay: "day", accent: "#7dd3fc", headline: "Bridges, diners, and neon", subtext: "Classic Americana at every turn." },
+    { key: "kansas", name: "Kansas", overlay: "day", accent: "#86efac", headline: "A quick, iconic stretch", subtext: "Small state, big Route 66 energy." },
+    { key: "oklahoma", name: "Oklahoma", overlay: "sunset", accent: "#fbbf24", headline: "Big skies, long horizons", subtext: "Cruise into golden hour." },
+    { key: "texas", name: "Texas", overlay: "sunset", accent: "#fb7185", headline: "Wide roads, bright signs", subtext: "Everything feels larger here." },
+    { key: "newmexico", name: "New Mexico", overlay: "sunset", accent: "#f97316", headline: "Desert dusk", subtext: "Warm tones, quiet miles." },
+    { key: "arizona", name: "Arizona", overlay: "night", accent: "#a78bfa", headline: "Stars and roadside glow", subtext: "Neon nights and desert air." },
+    { key: "california", name: "California", overlay: "night", accent: "#fca5a5", headline: "You’ve arrived", subtext: "Finish strong — book fast, rest easy." }
+  ];
+
+  const STATE_ALIASES = {
+    il: "illinois", illinois: "illinois",
+    mo: "missouri", missouri: "missouri",
+    ks: "kansas", kansas: "kansas",
+    ok: "oklahoma", oklahoma: "oklahoma",
+    tx: "texas", texas: "texas",
+    nm: "newmexico", "new mexico": "newmexico", newmexico: "newmexico",
+    az: "arizona", arizona: "arizona",
+    ca: "california", california: "california"
+  };
+
+  /***********************
+   * UTILITIES
+   ***********************/
+  const $ = (id) => document.getElementById(id);
+
+  function setText(id, value) {
+    const el = $(id);
+    if (el) el.textContent = value ?? "";
+  }
+
+  function setAttr(id, attr, value) {
+    const el = $(id);
+    if (el) el.setAttribute(attr, value ?? "");
+  }
+
+  function safeUrl(url) {
+    if (!url) return "";
+    try { return new URL(url, window.location.href).href; }
+    catch { return ""; }
+  }
+
+  function parseCSV(csvText) {
+    const rows = [];
+    let row = [];
+    let cur = "";
+    let inQuotes = false;
+
+    for (let i = 0; i < csvText.length; i++) {
+      const c = csvText[i];
+      const n = csvText[i + 1];
+
+      if (c === '"') {
+        if (inQuotes && n === '"') { cur += '"'; i++; }
+        else { inQuotes = !inQuotes; }
+        continue;
+      }
+
+      if (!inQuotes && c === ",") { row.push(cur); cur = ""; continue; }
+
+      if (!inQuotes && (c === "\n" || c === "\r")) {
+        if (c === "\r" && n === "\n") i++;
+        row.push(cur);
+        rows.push(row);
+        row = [];
+        cur = "";
+        continue;
+      }
+
+      cur += c;
+    }
+
+    row.push(cur);
+    rows.push(row);
+    return rows;
+  }
+
+  function rowsToObjects(rows) {
+    if (!rows || rows.length < 2) return [];
+    const headers = rows[0].map(h => (h || "").trim());
+    const out = [];
+    for (let i = 1; i < rows.length; i++) {
+      const r = rows[i];
+      if (!r || r.every(x => (x || "").trim() === "")) continue;
+      const obj = {};
+      headers.forEach((h, idx) => {
+        if (!h) return;
+        obj[h] = (r[idx] ?? "").trim();
+      });
+      out.push(obj);
+    }
+    return out;
+  }
+
+  async function fetchCSV(url) {
+    if (!url) return null;
+    const res = await fetch(url, { cache: "no-store" });
+    if (!res.ok) throw new Error(`Failed to fetch CSV (${res.status})`);
+    return await res.text();
+  }
+
+  async function loadSheetObjects(csvUrl) {
+    const text = await fetchCSV(csvUrl);
+    if (!text) return [];
+    return rowsToObjects(parseCSV(text));
+  }
+
+  function el(tag, className, attrs = {}) {
+    const e = document.createElement(tag);
+    if (className) e.className = className;
+    for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v);
+    return e;
+  }
+
+  function normalizeSide(side) {
+    const s = (side || "").toLowerCase();
+    if (s === "left" || s === "right" || s === "center") return s;
+    return "";
+  }
+
+  function normalizeStateKey(input) {
+    const raw = (input || "").trim().toLowerCase();
+    return STATE_ALIASES[raw] || raw || "";
+  }
+
+  /***********************
+   * CORE APPLY: SiteConfig
+   * (keeps booking top + sticky + card)
+   ***********************/
+  function applySiteConfig(site) {
+    const cfg = Object.assign({}, DEFAULTS, (site || {}));
+
+    // Brand text (only if those IDs exist on this page)
+    setText("motelName", cfg.motel_name);
+    setText("tagline", cfg.tagline);
+    setText("heroTitle", cfg.motel_name);
+    setText("footerBrand", cfg.motel_name);
+
+    // Phone links
+    const phoneDigits = (cfg.phone || "").replace(/[^0-9+]/g, "");
+    const telHref = phoneDigits ? `tel:${phoneDigits}` : "tel:";
+    setAttr("phoneLink", "href", telHref);
+    setAttr("phoneText", "href", telHref);
+    setText("phoneText", cfg.phone);
+
+    // Maps link
+    const address = `${cfg.address_line} ${cfg.city_state_zip}`.trim();
+    const mapsUrl = cfg.google_maps_embed_url
+      ? safeUrl(cfg.google_maps_embed_url)
+      : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
+
+    setAttr("mapsLink", "href", mapsUrl);
+    setAttr("addressText", "href", mapsUrl);
+    setText("addressText", cfg.address_line);
+
+    // Booking URL — KEEP PRIORITY: top + hero + sticky + card
+    const bookingUrl = safeUrl(cfg.booking_url) || "#";
+    ["bookNowTop", "bookNowHero", "stickyBook", "bookingCard", "bookNowFooter"].forEach(id => {
+      setAttr(id, "href", bookingUrl);
+    });
+    setText("stickyBookLabel", cfg.sticky_booking_text || "BOOK NOW");
+
+    // Footer address
+    setText("footerAddress", `${cfg.address_line} • ${cfg.city_state_zip}`);
+
+    // Booking image (if present on page)
+    const imgUrl = safeUrl(cfg.booking_image_url);
+    const img = $("bookingImage");
+    if (imgUrl && img) {
+      img.src = imgUrl;
+      // Preload
+      const link = document.createElement("link");
+      link.rel = "preload";
+      link.as = "image";
+      link.href = imgUrl;
+      document.head.appendChild(link);
+    }
+
+    // If no booking URL, hide sticky (but do NOT remove functionality otherwise)
+    if (!cfg.booking_url || cfg.booking_url === "#") {
+      const sticky = $("stickyBook");
+      if (sticky) sticky.style.display = "none";
+    }
+
+    // Bio section (if present on page)
+    const bioSection = $("bioSection");
+    const bioBody = (cfg.bio_body || "").trim();
+    if (bioSection && bioBody) {
+      setText("bioTitle", (cfg.bio_title || "About Skyliner Motel"));
+      setText("bioBody", bioBody);
+      bioSection.hidden = false;
+    } else if (bioSection) {
+      bioSection.hidden = true;
+    }
+
+    return cfg;
+  }
+
+  /***********************
+   * Alerts
+   ***********************/
+  function applyAlerts(alerts) {
+    const bar = $("alertBar");
+    const text = $("alertText");
+    if (!bar || !text) return;
+
+    const active = (alerts || []).find(a =>
+      String(a.active || "").toLowerCase() === "true" && (a.message || "").trim()
+    );
+
+    if (!active) { bar.hidden = true; return; }
+    text.textContent = active.message;
+    bar.hidden = false;
+  }
+
+  /***********************
+   * Mini Gallery (home page)
+   * Expected Gallery columns:
+   *  - order (number)
+   *  - image_url
+   *  - caption (optional)
+   *  - alt (optional)
+   ***********************/
+  function renderMiniGallery(galleryRows) {
+    const section = $("miniGallerySection");
+    const mount = $("miniGalleryMount");
+    if (!section || !mount) return;
+
+    const items = (galleryRows || [])
+      .filter(r => (r.image_url || "").trim())
+      .sort((a, b) => (Number(a.order) || 0) - (Number(b.order) || 0));
+
+    if (!items.length) {
+      section.hidden = true;
+      return;
+    }
+
+    mount.innerHTML = "";
+    for (const it of items) {
+      const item = el("div", "miniGallery__item");
+      const thumb = el("div", "miniGallery__thumb");
+
+      const img = document.createElement("img");
+      img.loading = "lazy";
+      img.decoding = "async";
+      img.src = it.image_url;
+      img.alt = (it.alt || it.caption || "Motel photo").trim();
+
+      thumb.appendChild(img);
+      item.appendChild(thumb);
+
+      const capText = (it.caption || "").trim();
+      if (capText) {
+        const cap = el("div", "miniGallery__caption");
+        cap.textContent = capText;
+        item.appendChild(cap);
+      }
+
+      mount.appendChild(item);
+    }
+
+    section.hidden = false;
+  }
+
+  /***********************
+   * Reviews Carousel (home page)
+   * Expected Reviews columns:
+   *  - order (number)
+   *  - name (optional)     e.g., "Jamie P."
+   *  - source (optional)   e.g., "Google"
+   *  - quote (required)
+   *  - date (optional)     e.g., "Jan 2026"
+   *  - active (optional)   true/false (defaults true if blank)
+   *
+   * Each review renders 5 stars automatically.
+   *
+   * Requires these IDs on the page:
+   *  - reviewsSection
+   *  - reviewsMount
+   * Optional:
+   *  - reviewsTitle
+   ***********************/
+  function renderReviews(reviewsRows) {
+    const section = $("reviewsSection");
+    const mount = $("reviewsMount");
+    if (!section || !mount) return;
+
+    const items = (reviewsRows || [])
+      .filter(r => {
+        const active = String(r.active || "true").toLowerCase();
+        return active !== "false" && (r.quote || "").trim();
+      })
+      .sort((a, b) => (Number(a.order) || 0) - (Number(b.order) || 0));
+
+    if (!items.length) {
+      section.hidden = true;
+      return;
+    }
+
+    // Build
+    mount.innerHTML = "";
+    const track = el("div", "reviewsTrack", { "aria-label": "Guest reviews" });
+
+    items.forEach((r, idx) => {
+      const bubble = el("article", "reviewBubble", {
+        "data-index": String(idx),
+        "aria-hidden": idx === 0 ? "false" : "true"
+      });
+
+      // Stars (always 5)
+      const stars = el("div", "reviewStars", { "aria-label": "5 out of 5 stars" });
+      stars.innerHTML = "★★★★★";
+      bubble.appendChild(stars);
+
+      const quote = el("div", "reviewQuote");
+      quote.textContent = r.quote;
+      bubble.appendChild(quote);
+
+      const meta = el("div", "reviewMeta");
+      const name = (r.name || "").trim();
+      const source = (r.source || "").trim();
+      const date = (r.date || "").trim();
+
+      // Build meta line like: "Jamie P. • Google • Jan 2026"
+      const parts = [name, source, date].filter(Boolean);
+      meta.textContent = parts.join(" • ");
+      bubble.appendChild(meta);
+
+      track.appendChild(bubble);
+    });
+
+    mount.appendChild(track);
+    section.hidden = false;
+
+    // Auto-advance
+    initReviewsCarousel(track, items.length);
+  }
+
+  function initReviewsCarousel(trackEl, count) {
+    if (!trackEl || count <= 1) return;
+
+    let index = 0;
+    const bubbles = Array.from(trackEl.querySelectorAll(".reviewBubble"));
+
+    function setActive(i) {
+      bubbles.forEach((b, idx) => {
+        const on = idx === i;
+        b.classList.toggle("is-active", on);
+        b.setAttribute("aria-hidden", on ? "false" : "true");
+      });
+
+      // If your CSS uses horizontal snapping, gently scroll into view
+      const target = bubbles[i];
+      if (target && typeof target.scrollIntoView === "function") {
+        target.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+      }
+    }
+
+    // Pause on hover / touch
+    let paused = false;
+    const pause = () => { paused = true; };
+    const resume = () => { paused = false; };
+
+    trackEl.addEventListener("mouseenter", pause);
+    trackEl.addEventListener("mouseleave", resume);
+    trackEl.addEventListener("touchstart", pause, { passive: true });
+    trackEl.addEventListener("touchend", resume, { passive: true });
+
+    // Advance every 4.5s
+    setActive(0);
+    window.setInterval(() => {
+      if (paused) return;
+      index = (index + 1) % count;
+      setActive(index);
+    }, 4500);
+  }
+
+  /***********************
+   * Route 66 Journey (route66 page)
+   * Uses same Stop rendering style as your original file.
+   * Expected Stops columns:
+   *  - state (or state_theme_key / route_state)
+   *  - order (number)
+   *  - side (left/right/center optional)
+   *  - stop_type (optional)
+   *  - title
+   *  - body
+   *  - image_url (optional)
+   *  - image_caption (optional)
+   *  - cta_text (optional)
+   *  - cta_url (optional)
+   ***********************/
+  function stopCta(stop) {
+    if (!stop.cta_text || !stop.cta_url) return null;
+    const isHash = stop.cta_url.startsWith("#");
+    const a = el("a", "btn btn--route", { href: stop.cta_url, target: isHash ? "_self" : "_blank", rel: "noopener" });
+    a.innerHTML = `<span><span class="routeBadge">66</span> ${stop.cta_text}</span>`;
+    return a;
+  }
+
+  function renderStateBand(routeState, stateStops) {
+    const band = el("section", "state", {
+      "data-theme": routeState.key,
+      "data-overlay": routeState.overlay
+    });
+
+    const overlay = el("div", "state__overlay");
+    const inner = el("div", "state__inner");
+
+    const header = el("div", "state__header");
+    const kicker = el("div", "state__kicker");
+    const dot = el("span", "state__dot", { "aria-hidden": "true" });
+    kicker.appendChild(dot);
+
+    const name = document.createElement("span");
+    name.textContent = routeState.name.toUpperCase();
+    kicker.appendChild(name);
+
+    const h = el("div", "state__headline");
+    h.textContent = routeState.headline;
+
+    const p = el("p", "state__subtext");
+    p.textContent = routeState.subtext;
+
+    header.appendChild(kicker);
+    header.appendChild(h);
+    header.appendChild(p);
+    inner.appendChild(header);
+
+    let flip = true;
+
+    for (const stop of (stateStops || [])) {
+      const forcedSide = normalizeSide(stop.side);
+      const side = forcedSide || (flip ? "left" : "right");
+      if (!forcedSide) flip = !flip;
+
+      const s = el("article", "stop", { "data-side": side, "data-stop-type": (stop.stop_type || "text") });
+      const pin = el("div", "stop__pin", { "aria-hidden": "true" });
+      const card = el("div", "stop__card");
+
+      if ((stop.title || "").trim()) {
+        const t = el("h3", "stop__title");
+        t.textContent = stop.title;
+        card.appendChild(t);
+      }
+
+      if ((stop.body || "").trim()) {
+        const b = el("p", "stop__body");
+        b.textContent = stop.body;
+        card.appendChild(b);
+      }
+
+      if ((stop.image_url || "").trim()) {
+        const media = el("div", "stop__media");
+        const img = document.createElement("img");
+        img.loading = "lazy";
+        img.decoding = "async";
+        img.alt = stop.image_caption || stop.title || "Photo";
+        img.src = stop.image_url;
+        media.appendChild(img);
+
+        if ((stop.image_caption || "").trim()) {
+          const cap = el("div", "stop__caption");
+          cap.textContent = stop.image_caption;
+          media.appendChild(cap);
+        }
+
+        card.appendChild(media);
+      }
+
+      const cta = stopCta(stop);
+      if (cta) {
+        const wrap = el("div", "stop__cta");
+        wrap.appendChild(cta);
+        card.appendChild(wrap);
+      }
+
+      s.appendChild(pin);
+      s.appendChild(card);
+      inner.appendChild(s);
+    }
+
+    band.appendChild(overlay);
+    band.appendChild(inner);
+    return band;
+  }
+
+  function renderRoute66Journey(stops) {
+    const mount = $("statesMount");
+    if (!mount) return;
+
+    const normalizedStops = (stops || []).map(s => ({
+      ...s,
+      _stateKey: normalizeStateKey(s.state || s.state_theme_key || s.route_state || "")
+    }));
+
+    const byState = new Map();
+    for (const rs of ROUTE66) byState.set(rs.key, []);
+
+    for (const stop of normalizedStops) {
+      const key = byState.has(stop._stateKey) ? stop._stateKey : null;
+      if (key) byState.get(key).push(stop);
+    }
+
+    for (const rs of ROUTE66) {
+      byState.get(rs.key).sort((a, b) => (Number(a.order) || 0) - (Number(b.order) || 0));
+    }
+
+    mount.innerHTML = "";
+    for (const rs of ROUTE66) {
+      mount.appendChild(renderStateBand(rs, byState.get(rs.key)));
+    }
+
+    // Observers for animations/theme (only if those classes exist)
+    initStopObserver();
+    initStateObserver();
+
+    const firstBand = document.querySelector(".state");
+    if (firstBand) setThemeFromStateBand(firstBand);
+  }
+
+  function setThemeFromStateBand(band) {
+    if (!band) return;
+    const overlay = band.getAttribute("data-overlay") || "day";
+    const theme = (band.getAttribute("data-theme") || "").toLowerCase();
+
+    document.body.setAttribute("data-overlay", overlay);
+
+    const found = ROUTE66.find(s => s.key === theme);
+    document.documentElement.style.setProperty("--accent", (found && found.accent) ? found.accent : "#ffd54a");
+  }
+
+  function initStopObserver() {
+    const stops = document.querySelectorAll(".stop");
+    if (!stops.length) return;
+
+    const io = new IntersectionObserver((entries) => {
+      for (const e of entries) {
+        if (e.isIntersecting) {
+          e.target.classList.add("is-in");
+          io.unobserve(e.target);
+        }
+      }
+    }, { threshold: 0.12 });
+
+    stops.forEach(s => io.observe(s));
+  }
+
+  function initStateObserver() {
+    const bands = document.querySelectorAll(".state");
+    if (!bands.length) return;
+
+    const io = new IntersectionObserver((entries) => {
+      const visible = entries
+        .filter(e => e.isIntersecting)
+        .sort((a, b) => (b.intersectionRatio || 0) - (a.intersectionRatio || 0));
+      if (visible[0]) setThemeFromStateBand(visible[0].target);
+    }, { threshold: [0.2, 0.35, 0.5, 0.65] });
+
+    bands.forEach(b => io.observe(b));
+  }
+
+  /***********************
+   * Town Page (town.html)
+   * Expected Town columns:
+   *  - order
+   *  - title
+   *  - body
+   *  - image_url (optional)
+   *  - image_caption (optional)
+   *  - cta_text (optional)
+   *  - cta_url (optional)
+   *  - category (optional) (for grouping/filter later)
+   *
+   * Required mount ID:
+   *  - townMount
+   ***********************/
+  function renderTown(townRows) {
+    const mount = $("townMount");
+    if (!mount) return;
+
+    const items = (townRows || [])
+      .filter(r => (r.title || r.body || r.image_url || "").trim())
+      .sort((a, b) => (Number(a.order) || 0) - (Number(b.order) || 0));
+
+    mount.innerHTML = "";
+    if (!items.length) return;
+
+    for (const it of items) {
+      const card = el("article", "townCard");
+      const inner = el("div", "townCard__inner");
+
+      const title = (it.title || "").trim();
+      if (title) {
+        const h = el("h3", "townCard__title");
+        h.textContent = title;
+        inner.appendChild(h);
+      }
+
+      const body = (it.body || "").trim();
+      if (body) {
+        const p = el("p", "townCard__body");
+        p.textContent = body;
+        inner.appendChild(p);
+      }
+
+      if ((it.image_url || "").trim()) {
+        const media = el("div", "townCard__media");
+        const img = document.createElement("img");
+        img.loading = "lazy";
+        img.decoding = "async";
+        img.src = it.image_url;
+        img.alt = (it.image_caption || it.title || "Photo").trim();
+        media.appendChild(img);
+
+        const capText = (it.image_caption || "").trim();
+        if (capText) {
+          const cap = el("div", "townCard__caption");
+          cap.textContent = capText;
+          media.appendChild(cap);
+        }
+
+        inner.appendChild(media);
+      }
+
+      if ((it.cta_text || "").trim() && (it.cta_url || "").trim()) {
+        const wrap = el("div", "townCard__cta");
+        const a = el("a", "btn btn--route", {
+          href: it.cta_url,
+          target: it.cta_url.startsWith("#") ? "_self" : "_blank",
+          rel: "noopener"
+        });
+        a.innerHTML = `<span><span class="routeBadge">66</span> ${it.cta_text}</span>`;
+        wrap.appendChild(a);
+        inner.appendChild(wrap);
+      }
+
+      card.appendChild(inner);
+      mount.appendChild(card);
+    }
+  }
+
+  /***********************
+   * History Page (history.html)
+   * Expected History columns:
+   *  - order
+   *  - year (optional)
+   *  - title
+   *  - body
+   *  - image_url (optional)
+   *  - image_caption (optional)
+   *
+   * Required mount ID:
+   *  - historyMount
+   ***********************/
+  function renderHistory(historyRows) {
+    const mount = $("historyMount");
+    if (!mount) return;
+
+    const items = (historyRows || [])
+      .filter(r => (r.title || r.body || r.image_url || "").trim())
+      .sort((a, b) => (Number(a.order) || 0) - (Number(b.order) || 0));
+
+    mount.innerHTML = "";
+    if (!items.length) return;
+
+    for (const it of items) {
+      const card = el("article", "historyCard");
+      const inner = el("div", "historyCard__inner");
+
+      const year = (it.year || "").trim();
+      const title = (it.title || "").trim();
+
+      if (year || title) {
+        const h = el("h3", "historyCard__title");
+        h.textContent = year && title ? `${year} — ${title}` : (title || year);
+        inner.appendChild(h);
+      }
+
+      const body = (it.body || "").trim();
+      if (body) {
+        const p = el("p", "historyCard__body");
+        p.textContent = body;
+        inner.appendChild(p);
+      }
+
+      if ((it.image_url || "").trim()) {
+        const media = el("div", "historyCard__media");
+        const img = document.createElement("img");
+        img.loading = "lazy";
+        img.decoding = "async";
+        img.src = it.image_url;
+        img.alt = (it.image_caption || it.title || "Historic photo").trim();
+        media.appendChild(img);
+
+        const capText = (it.image_caption || "").trim();
+        if (capText) {
+          const cap = el("div", "historyCard__caption");
+          cap.textContent = capText;
+          media.appendChild(cap);
+        }
+
+        inner.appendChild(media);
+      }
+
+      card.appendChild(inner);
+      mount.appendChild(card);
+    }
+  }
+
+  /***********************
+   * MENU (optional)
+   * If your HTML includes:
+   *  - menuBtn
+   *  - menuPanel
+   *  - menuBackdrop
+   * Then this will wire it up.
+   ***********************/
+  function initMenu() {
+    const btn = $("menuBtn");
+    const panel = $("menuPanel");
+    const backdrop = $("menuBackdrop");
+
+    if (!btn || !panel) return;
+
+    const open = () => {
+      panel.classList.add("is-open");
+      btn.setAttribute("aria-expanded", "true");
+      if (backdrop) backdrop.classList.add("is-open");
+      document.body.classList.add("menu-open");
+    };
+
+    const close = () => {
+      panel.classList.remove("is-open");
+      btn.setAttribute("aria-expanded", "false");
+      if (backdrop) backdrop.classList.remove("is-open");
+      document.body.classList.remove("menu-open");
+    };
+
+    btn.addEventListener("click", () => {
+      const isOpen = panel.classList.contains("is-open");
+      isOpen ? close() : open();
+    });
+
+    if (backdrop) backdrop.addEventListener("click", close);
+
+    // Close on ESC
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") close();
+    });
+
+    // Close when clicking a link inside the panel
+    panel.addEventListener("click", (e) => {
+      const a = e.target && e.target.closest ? e.target.closest("a") : null;
+      if (a) close();
+    });
+  }
+
+  /***********************
+   * LOAD EVERYTHING (defensive)
+   ***********************/
+  async function loadAll() {
+    const loaders = [
+      loadSheetObjects(SHEETS.SITE_CONFIG_CSV).catch(() => []),
+      loadSheetObjects(SHEETS.ALERTS_CSV).catch(() => []),
+      loadSheetObjects(SHEETS.GALLERY_CSV).catch(() => []),
+      loadSheetObjects(SHEETS.REVIEWS_CSV).catch(() => []),
+      loadSheetObjects(SHEETS.STOPS_CSV).catch(() => []),
+      loadSheetObjects(SHEETS.TOWN_CSV).catch(() => []),
+      loadSheetObjects(SHEETS.HISTORY_CSV).catch(() => [])
+    ];
+
+    const [siteRows, alertRows, galleryRows, reviewRows, stopRows, townRows, historyRows] = await Promise.all(loaders);
+
+    return {
+      site: siteRows[0] || null,
+      alerts: alertRows || [],
+      gallery: galleryRows || [],
+      reviews: reviewRows || [],
+      stops: stopRows || [],
+      town: townRows || [],
+      history: historyRows || []
+    };
+  }
+
+  /***********************
+   * MAIN
+   ***********************/
+  async function main() {
+    initMenu();
+
+    let data = { site: null, alerts: [], gallery: [], reviews: [], stops: [], town: [], history: [] };
+
+    try {
+      data = await loadAll();
+    } catch (err) {
+      console.warn("Sheet load failed (using defaults):", err);
+    }
+
+    // Always apply site config + alerts if those elements exist on this page
+    applySiteConfig(data.site);
+    applyAlerts(data.alerts);
+
+    // Home page components (only render if mounts exist)
+    renderMiniGallery(data.gallery);
+    renderReviews(data.reviews);
+
+    // Route 66 page
+    renderRoute66Journey(data.stops);
+
+    // Town page
+    renderTown(data.town);
+
+    // History page
+    renderHistory(data.history);
+  }
+
+  // Kick off after DOM ready
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", main);
+  } else {
+    main();
+  }
+})();

@@ -3,624 +3,18 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="Skyliner Motel — book fast, travel Route 66 in a scroll." />
-  <title>Skyliner Motel</title>
+  <meta name="description" content="Skyliner Motel — book fast, glow all night." />
+  <title>Skyliner Motel — Stay</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 
-  <style>
-    :root{
-      --text: rgba(255,255,255,0.92);
-      --muted: rgba(255,255,255,0.70);
-      --line: rgba(255,255,255,0.10);
-      --accent: #ffd54a;
-
-      /* NEW neon palette */
-      --neonPink: #ff4fd8;
-      --neonCyan: #39d5ff;
-      --neonAmber: #ffd54a;
-      --neonRed: #ff4a4a;
-
-      --shadow: 0 12px 36px rgba(0,0,0,.35);
-      --radius: 18px;
-      --max: 1100px;
-      --roadW: 56px;
-      --gutter: 18px;
-      --statePad: 34px;
-      --font: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
-    }
-
-    *{ box-sizing:border-box; }
-    html,body{ height:100%; }
-    body{
-      margin:0;
-      font-family:var(--font);
-      color:var(--text);
-      background:
-        radial-gradient(1200px 800px at 20% 0%, rgba(255,213,74,0.10), transparent 60%),
-        radial-gradient(1200px 800px at 80% 20%, rgba(255,107,107,0.08), transparent 60%),
-        linear-gradient(180deg, #07070a 0%, #0b0c10 40%, #07070a 100%);
-    }
-
-    a{ color:inherit; text-decoration:none; }
-    img{ max-width:100%; display:block; }
-
-    .skip{ position:absolute; left:-9999px; top:auto; width:1px; height:1px; overflow:hidden; }
-    .skip:focus{ left:12px; top:12px; width:auto; height:auto; padding:10px 12px; background:#fff; color:#000; border-radius:12px; z-index:9999; }
-
-    /* ========= TOPBAR ========= */
-    .topbar{
-      position:sticky; top:0; z-index:50;
-      backdrop-filter: blur(10px);
-      background: rgba(10,10,14,0.65);
-      border-bottom: 1px solid rgba(255,255,255,0.10);
-    }
-    .topbar__inner{
-      max-width:var(--max); margin:0 auto;
-      padding:12px 14px;
-      display:flex; align-items:center; justify-content:space-between; gap:12px;
-    }
-
-    /* NEW neon brand treatment */
-    .brand__name{
-      font-weight: 1000;
-      letter-spacing: 0.2px;
-      font-size:16px;
-      line-height:1.1;
-      text-shadow:
-        0 0 10px rgba(57,213,255,0.30),
-        0 0 18px rgba(255,79,216,0.18);
-    }
-    .brand__tagline{ font-size:12px; color:var(--muted); margin-top:2px; }
-
-    .topbar__meta{ display:flex; align-items:center; gap:10px; }
-    .meta-link{
-      font-size:13px;
-      padding:10px 12px;
-      border:1px solid rgba(255,255,255,0.10);
-      border-radius:999px;
-      background: rgba(255,255,255,0.04);
-      box-shadow: 0 0 0 rgba(0,0,0,0);
-      transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
-    }
-    .meta-link:active{ transform: scale(0.98); }
-    .meta-link:hover{
-      border-color: rgba(57,213,255,0.35);
-      box-shadow: 0 0 18px rgba(57,213,255,0.12);
-    }
-
-    /* ========= BUTTONS ========= */
-    .btn{
-      display:inline-flex; align-items:center; justify-content:center;
-      border-radius:999px;
-      padding:12px 14px;
-      border:1px solid var(--line);
-      font-weight:900;
-      letter-spacing:0.3px;
-      transition: transform .15s ease, filter .15s ease, box-shadow .15s ease;
-      user-select:none;
-    }
-    .btn:active{ transform: scale(0.98); }
-
-    .btn--primary{
-      background: linear-gradient(135deg, rgba(255,213,74,0.98), rgba(255,74,74,0.82));
-      border-color: rgba(255,255,255,0.08);
-      color:#111;
-      box-shadow:
-        0 16px 50px rgba(0,0,0,0.40),
-        0 0 24px rgba(255,213,74,0.16);
-    }
-    .btn--primary:hover{ filter: brightness(1.05); }
-
-    /* NEW “Take the Route 66 scroll” neon button */
-    .btn--route{
-      background:
-        linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
-      border-color: rgba(57,213,255,0.25);
-      box-shadow:
-        0 0 22px rgba(57,213,255,0.12),
-        inset 0 0 0 1px rgba(255,79,216,0.10);
-      position:relative;
-      overflow:hidden;
-    }
-    .btn--route::before{
-      content:"";
-      position:absolute; inset:-2px;
-      background: conic-gradient(from 200deg,
-        rgba(57,213,255,0.00),
-        rgba(57,213,255,0.22),
-        rgba(255,79,216,0.18),
-        rgba(255,213,74,0.16),
-        rgba(57,213,255,0.00)
-      );
-      filter: blur(10px);
-      opacity: 0.55;
-      pointer-events:none;
-      animation: neonSweep 4.5s linear infinite;
-    }
-    @keyframes neonSweep{
-      from{ transform: rotate(0deg); }
-      to{ transform: rotate(360deg); }
-    }
-    .btn--route span{ position:relative; display:inline-flex; align-items:center; gap:10px; }
-    .routeBadge{
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      width:36px; height:28px;
-      border-radius:10px;
-      background: rgba(0,0,0,0.35);
-      border:1px solid rgba(255,255,255,0.16);
-      box-shadow: 0 0 18px rgba(255,79,216,0.12);
-      font-weight:1000;
-      letter-spacing:0.6px;
-    }
-
-    .btn--xl{ padding:14px 16px; font-size:14px; min-width: 150px; }
-    .btn--book{ display:none; }
-
-    /* ========= HERO ========= */
-    .hero{
-      padding: 18px 14px 10px;
-      position:relative;
-    }
-    /* NEW: Neon glow halo behind hero */
-    .hero::before{
-      content:"";
-      position:absolute;
-      inset:-40px 0 auto 0;
-      height: 320px;
-      background:
-        radial-gradient(420px 240px at 18% 20%, rgba(57,213,255,0.16), transparent 70%),
-        radial-gradient(420px 240px at 78% 10%, rgba(255,79,216,0.14), transparent 70%),
-        radial-gradient(420px 240px at 50% 50%, rgba(255,213,74,0.08), transparent 70%);
-      pointer-events:none;
-      filter: blur(2px);
-    }
-
-    .hero__inner{ max-width:var(--max); margin:0 auto; display:grid; gap:14px; position:relative; z-index:1; }
-
-    .hero__copy{
-      padding:16px;
-      border-radius: var(--radius);
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.10);
-      box-shadow: var(--shadow);
-      position:relative;
-      overflow:hidden;
-    }
-
-    /* NEW: subtle neon border glow */
-    .hero__copy::after{
-      content:"";
-      position:absolute; inset:-2px;
-      border-radius: calc(var(--radius) + 2px);
-      background: linear-gradient(90deg,
-        rgba(57,213,255,0.22),
-        rgba(255,79,216,0.18),
-        rgba(255,213,74,0.18),
-        rgba(57,213,255,0.22)
-      );
-      opacity: 0.22;
-      filter: blur(10px);
-      pointer-events:none;
-    }
-
-    .hero__h1{
-      margin:0 0 6px;
-      font-size:30px;
-      letter-spacing:-0.6px;
-      font-weight: 1000;
-      text-shadow:
-        0 0 16px rgba(57,213,255,0.16),
-        0 0 22px rgba(255,79,216,0.10);
-      position:relative;
-      z-index:1;
-    }
-    .hero__p{ margin:0 0 12px; color:var(--muted); line-height:1.5; position:relative; z-index:1; }
-
-    .hero__facts{ display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin: 12px 0 14px; position:relative; z-index:1; }
-    .fact{
-      padding: 12px;
-      border-radius: 14px;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.10);
-      box-shadow: 0 0 24px rgba(0,0,0,0.15);
-    }
-    .fact__label{ font-size:11px; color:var(--muted); }
-    .fact__value{ font-size:13px; font-weight:900; margin-top:4px; }
-    .fact__value a{ text-decoration:underline; text-underline-offset:3px; }
-
-    .hero__cta{ display:flex; gap:10px; flex-wrap:wrap; position:relative; z-index:1; }
-
-    /* ========= ALERT ========= */
-    .alert{
-      margin-top:14px;
-      display:flex; gap:10px; align-items:flex-start;
-      padding: 12px 12px;
-      background: rgba(255,213,74,0.12);
-      border: 1px solid rgba(255,213,74,0.25);
-      border-radius: 14px;
-      position:relative; z-index:1;
-    }
-    .alert__icon{ font-size:18px; line-height:1; }
-    .alert__text{ font-size:13px; color: rgba(255,255,255,0.85); line-height:1.4; }
-
-    /* ========= SIGN IMAGE CARD ========= */
-    .bookingCard{
-      position:relative;
-      border-radius: var(--radius);
-      overflow:hidden;
-      background: rgba(255,255,255,0.03);
-      border: 1px solid rgba(255,255,255,0.10);
-      box-shadow: var(--shadow);
-    }
-    .bookingCard::after{
-      content:"";
-      position:absolute; inset:0;
-      background:
-        radial-gradient(240px 240px at 70% 20%, rgba(57,213,255,0.12), transparent 70%),
-        radial-gradient(280px 220px at 20% 80%, rgba(255,79,216,0.10), transparent 70%);
-      pointer-events:none;
-    }
-    .bookingCard__badge{
-      position:absolute;
-      left:12px; bottom:12px;
-      padding:10px 12px;
-      border-radius:999px;
-      background: rgba(0,0,0,0.45);
-      border: 1px solid rgba(255,255,255,0.18);
-      font-size:12px;
-      font-weight:1000;
-      letter-spacing:0.4px;
-      box-shadow: 0 0 22px rgba(255,79,216,0.10);
-    }
-
-    /* ========= NEW: MINI SWIPE GALLERY (added) ========= */
-    .miniGallery{
-      max-width:var(--max);
-      margin: 12px auto 0;
-      padding: 0 14px;
-    }
-    .miniGallery__card{
-      border-radius: var(--radius);
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.10);
-      box-shadow: var(--shadow);
-      padding: 14px;
-      position:relative;
-      overflow:hidden;
-    }
-    .miniGallery__card::before{
-      content:"";
-      position:absolute; inset:-2px;
-      border-radius: calc(var(--radius) + 2px);
-      background: linear-gradient(90deg,
-        rgba(57,213,255,0.18),
-        rgba(255,79,216,0.16),
-        rgba(255,213,74,0.12)
-      );
-      opacity: 0.14;
-      filter: blur(12px);
-      pointer-events:none;
-    }
-    .miniGallery__header{
-      display:flex;
-      align-items:baseline;
-      justify-content:space-between;
-      gap:10px;
-      position:relative;
-      z-index:1;
-    }
-    .miniGallery__title{
-      margin:0;
-      font-size:14px;
-      font-weight:1000;
-      letter-spacing:0.2px;
-    }
-    .miniGallery__hint{
-      color: rgba(255,255,255,0.65);
-      font-size:12px;
-      font-weight:700;
-      white-space:nowrap;
-    }
-    .miniGallery__scroller{
-      margin-top: 10px;
-      display:flex;
-      gap: 10px;
-      overflow-x:auto;
-      -webkit-overflow-scrolling: touch;
-      scroll-snap-type: x mandatory;
-      padding-bottom: 6px;
-      position:relative;
-      z-index:1;
-    }
-    .miniGallery__scroller::-webkit-scrollbar{ height: 8px; }
-    .miniGallery__scroller::-webkit-scrollbar-thumb{
-      background: rgba(255,255,255,0.12);
-      border-radius: 999px;
-    }
-    .miniGallery__item{
-      flex: 0 0 auto;
-      width: 96px;
-      scroll-snap-align: start;
-    }
-    .miniGallery__thumb{
-      width: 96px;
-      aspect-ratio: 1 / 1;
-      border-radius: 16px;
-      overflow:hidden;
-      border: 1px solid rgba(255,255,255,0.12);
-      background: rgba(0,0,0,0.20);
-      box-shadow: 0 10px 28px rgba(0,0,0,0.20);
-      position:relative;
-    }
-    .miniGallery__thumb img{
-      width:100%;
-      height:100%;
-      object-fit: cover;
-      transform: scale(1.01);
-    }
-    .miniGallery__caption{
-      margin-top: 6px;
-      font-size: 11px;
-      color: rgba(255,255,255,0.70);
-      line-height: 1.25;
-      max-width: 96px;
-    }
-    @media (min-width: 860px){
-      .miniGallery{ padding: 0; }
-      .miniGallery__item{ width: 110px; }
-      .miniGallery__thumb{ width: 110px; border-radius: 18px; }
-      .miniGallery__caption{ max-width: 110px; }
-    }
-
-    /* ========= BIO (NEW) ========= */
-    .bio{
-      max-width:var(--max);
-      margin: 12px auto 0;
-      padding: 0 14px;
-    }
-    .bio__card{
-      border-radius: var(--radius);
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.10);
-      box-shadow: var(--shadow);
-      padding: 16px;
-      position:relative;
-      overflow:hidden;
-    }
-    .bio__card::before{
-      content:"";
-      position:absolute; inset:-2px;
-      border-radius: calc(var(--radius) + 2px);
-      background: linear-gradient(90deg,
-        rgba(255,79,216,0.22),
-        rgba(57,213,255,0.20),
-        rgba(255,213,74,0.18)
-      );
-      opacity: 0.18;
-      filter: blur(12px);
-      pointer-events:none;
-    }
-    .bio__title{
-      margin:0 0 8px;
-      font-size:16px;
-      font-weight:1000;
-      letter-spacing:0.2px;
-      position:relative;
-    }
-    .bio__body{
-      margin:0;
-      color: rgba(255,255,255,0.78);
-      line-height: 1.6;
-      font-size: 13.5px;
-      position:relative;
-    }
-
-    /* ========= JOURNEY (road untouched) ========= */
-    .journey{ padding: 18px 14px 60px; }
-    .journey__header{ max-width:var(--max); margin:0 auto 14px; }
-    .journey__h2{ margin:0 0 6px; font-size:20px; }
-    .journey__p{ margin:0; color:var(--muted); line-height:1.5; }
-
-    .road{ max-width:var(--max); margin:0 auto; position:relative; padding: 10px 0 0; }
-    .road__spine{
-      position:absolute;
-      left: calc(50% - (var(--roadW) / 2));
-      top: 0; bottom: 0;
-      width: var(--roadW);
-      pointer-events:none;
-    }
-    .road__line{
-      position:absolute; inset:0;
-      border-radius: 999px;
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.10);
-    }
-    .road__dashes{
-      position:absolute; left:50%; top:10px; bottom:10px;
-      width: 3px;
-      transform: translateX(-50%);
-      background: repeating-linear-gradient(
-        to bottom,
-        rgba(255,213,74,0.95) 0px,
-        rgba(255,213,74,0.95) 16px,
-        transparent 16px,
-        transparent 32px
-      );
-      filter: drop-shadow(0 0 8px rgba(255,213,74,0.25));
-      border-radius: 3px;
-      animation: dash 2.3s linear infinite;
-      opacity: 0.9;
-    }
-    @keyframes dash{ from{ background-position: 0 0; } to{ background-position: 0 48px; } }
-    .states{ display:flex; flex-direction:column; gap: 14px; }
-
-    .state{
-      position:relative;
-      padding: var(--statePad) 0;
-      border-radius: 24px;
-      overflow:hidden;
-      border: 1px solid rgba(255,255,255,0.08);
-      background:
-        radial-gradient(900px 480px at 20% 0%, rgba(255,255,255,0.08), transparent 55%),
-        radial-gradient(900px 480px at 80% 10%, rgba(255,255,255,0.06), transparent 60%),
-        rgba(255,255,255,0.03);
-    }
-    .state__overlay{
-      position:absolute; inset:0;
-      background: linear-gradient(180deg, rgba(8,8,12,0.55) 0%, rgba(8,8,12,0.78) 60%, rgba(8,8,12,0.85) 100%);
-    }
-    .state__inner{ position:relative; padding: 0 12px; }
-    .state__header{ margin: 0 auto 14px; max-width: min(720px, 100%); text-align:center; }
-    .state__kicker{
-      display:inline-flex; align-items:center; gap:10px;
-      padding: 10px 12px;
-      border-radius: 999px;
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.10);
-      font-weight:1000;
-      font-size: 12px;
-      letter-spacing: 0.5px;
-    }
-    .state__dot{ width:10px; height:10px; border-radius:999px; background: var(--accent); box-shadow: 0 0 18px rgba(255,213,74,0.35); }
-    .state__headline{ margin: 10px 0 6px; font-size: 18px; letter-spacing: -0.2px; }
-    .state__subtext{ margin:0; color: var(--muted); line-height: 1.5; font-size: 13px; }
-
-    .stop{
-      position:relative;
-      display:grid;
-      grid-template-columns: 1fr;
-      gap: 10px;
-      margin: 12px 0;
-      opacity: 0;
-      transform: translateY(10px);
-      transition: opacity .55s ease, transform .55s ease;
-    }
-    .stop.is-in{ opacity: 1; transform: translateY(0); }
-    .stop__card{
-      border-radius: 18px;
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.10);
-      padding: 14px;
-      box-shadow: 0 10px 28px rgba(0,0,0,0.25);
-    }
-    .stop__title{ margin:0 0 6px; font-weight: 1000; letter-spacing: 0.2px; font-size: 15px; }
-    .stop__body{ margin:0; color: rgba(255,255,255,0.78); line-height: 1.55; font-size: 13px; }
-    .stop__media{
-      border-radius: 14px; overflow:hidden;
-      border: 1px solid rgba(255,255,255,0.10);
-      margin-top: 10px; background: rgba(0,0,0,0.25);
-    }
-    .stop__caption{
-      padding: 10px 12px; font-size: 12px; color: rgba(255,255,255,0.72);
-      border-top: 1px solid rgba(255,255,255,0.08);
-      background: rgba(0,0,0,0.18);
-    }
-    .stop__cta{ margin-top: 12px; display:flex; justify-content:flex-start; }
-
-    .stop::before{
-      content:"";
-      position:absolute;
-      top: 22px;
-      left: calc(50% - 2px);
-      width: 4px; height: 4px;
-      border-radius:999px;
-      background: var(--accent);
-      box-shadow: 0 0 20px rgba(255,213,74,0.35);
-    }
-    .stop__pin{
-      position:absolute;
-      top: 18px;
-      left: calc(50% - 9px);
-      width: 18px; height: 18px;
-      border-radius: 999px;
-      background: rgba(0,0,0,0.35);
-      border: 1px solid rgba(255,255,255,0.16);
-      backdrop-filter: blur(6px);
-    }
-
-    .stop[data-side="left"]{ padding-right: calc(50% + (var(--roadW) / 2) + var(--gutter)); }
-    .stop[data-side="right"]{ padding-left:  calc(50% + (var(--roadW) / 2) + var(--gutter)); }
-    .stop[data-side="center"]{ padding-left: 0; padding-right: 0; max-width: 720px; margin-left:auto; margin-right:auto; }
-
-    /* ========= FOOTER ========= */
-    .footer{
-      padding: 26px 14px 44px; /* reduced padding because sticky CTA exists */
-      border-top: 1px solid var(--line);
-      background: rgba(0,0,0,0.15);
-    }
-    .footer__inner{
-      max-width:var(--max);
-      margin:0 auto;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-    }
-    .footer__brand{ font-weight:1000; }
-    .footer__muted{ color:var(--muted); font-size:13px; margin-top:4px; }
-
-    /* REMOVE redundant footer BOOK NOW (keep info only) */
-    .footer__right{ display:none; }
-
-    /* ========= STICKY BOOK (keep) ========= */
-    .stickyBook{
-      position: fixed;
-      right: 14px; bottom: 14px;
-      z-index: 60;
-      padding: 14px 16px;
-      border-radius: 999px;
-      background: linear-gradient(135deg, rgba(255,213,74,0.98), rgba(255,107,107,0.78));
-      color:#111;
-      font-weight: 1000;
-      letter-spacing: 0.6px;
-      box-shadow: 0 12px 40px rgba(0,0,0,0.35);
-      border: 1px solid rgba(255,255,255,0.10);
-    }
-    .stickyBook__label{ font-size: 13px; }
-
-    @media (min-width: 860px){
-      .hero__inner{ grid-template-columns: 1.1fr 0.9fr; align-items:stretch; }
-      .btn--book{ display:inline-flex; }
-      .hero__h1{ font-size:42px; }
-      .journey__h2{ font-size:24px; }
-      .state__headline{ font-size: 20px; }
-      .stop[data-side="left"]{ padding-right: calc(50% + (var(--roadW) / 2) + 28px); }
-      .stop[data-side="right"]{ padding-left:  calc(50% + (var(--roadW) / 2) + 28px); }
-      .stickyBook{ right: 22px; bottom: 22px; }
-      .footer__right{ display:none; } /* still hidden on desktop */
-      .bio{ padding: 0; } /* align to max container already */
-      .miniGallery{ padding: 0; } /* align gallery on desktop */
-    }
-
-    /* Global day/sunset/night overlays controlled by scroll */
-    body[data-overlay="day"]{
-      background:
-        radial-gradient(1200px 800px at 20% 0%, rgba(80,160,255,0.12), transparent 60%),
-        radial-gradient(1200px 800px at 80% 20%, rgba(255,213,74,0.10), transparent 60%),
-        linear-gradient(180deg, #07070a 0%, #0b0c10 45%, #07070a 100%);
-    }
-    body[data-overlay="sunset"]{
-      background:
-        radial-gradient(1200px 800px at 25% 0%, rgba(255,120,90,0.16), transparent 60%),
-        radial-gradient(1200px 800px at 85% 20%, rgba(255,213,74,0.12), transparent 60%),
-        linear-gradient(180deg, #07070a 0%, #0b0c10 45%, #07070a 100%);
-    }
-    body[data-overlay="night"]{
-      background:
-        radial-gradient(1200px 800px at 25% 0%, rgba(140,90,255,0.14), transparent 60%),
-        radial-gradient(1200px 800px at 85% 20%, rgba(80,220,255,0.08), transparent 60%),
-        linear-gradient(180deg, #05060a 0%, #0b0c10 45%, #05060a 100%);
-    }
-  </style>
+  <link rel="stylesheet" href="./style.css" />
 </head>
 
-<body>
-  <a class="skip" href="#journey">Skip to content</a>
+<body data-page="home">
+  <a class="skip" href="#main">Skip to content</a>
 
   <header class="topbar" id="top">
     <div class="topbar__inner">
@@ -628,7 +22,11 @@
         <div class="brand__name" id="motelName">Skyliner Motel</div>
         <div class="brand__tagline" id="tagline">Clean, comfortable stays on Route 66</div>
       </div>
+
       <nav class="topbar__meta" aria-label="Primary">
+        <button class="meta-link meta-link--menu" id="menuBtn" type="button" aria-haspopup="dialog" aria-controls="menuPanel" aria-expanded="false">
+          ☰ Menu
+        </button>
         <a class="meta-link" id="phoneLink" href="tel:+15551234567">Call</a>
         <a class="meta-link" id="mapsLink" href="#" target="_blank" rel="noopener">Map</a>
         <a class="btn btn--primary btn--book" id="bookNowTop" href="#" target="_blank" rel="noopener">BOOK NOW</a>
@@ -636,12 +34,36 @@
     </div>
   </header>
 
-  <main>
+  <!-- Menu Drawer -->
+  <div class="menuOverlay" id="menuOverlay" hidden></div>
+  <aside class="menuPanel" id="menuPanel" role="dialog" aria-modal="true" aria-label="Site menu" hidden>
+    <div class="menuPanel__header">
+      <div class="menuPanel__title" id="menuTitle">Skyliner Motel</div>
+      <button class="menuPanel__close" id="menuClose" type="button" aria-label="Close menu">✕</button>
+    </div>
+
+    <div class="menuPanel__links">
+      <a class="menuLink is-active" href="./index.html">Stay</a>
+      <a class="menuLink" href="./town.html">In Town</a>
+      <a class="menuLink" href="./route66.html">Route 66</a>
+      <a class="menuLink" href="./history.html">History</a>
+    </div>
+
+    <div class="menuPanel__cta">
+      <a class="btn btn--primary btn--xl" id="bookNowMenu" href="#" target="_blank" rel="noopener">BOOK NOW</a>
+      <div class="menuPanel__mini">
+        <a class="meta-link" id="phoneLink2" href="tel:+15551234567">Call</a>
+        <a class="meta-link" id="mapsLink2" href="#" target="_blank" rel="noopener">Map</a>
+      </div>
+    </div>
+  </aside>
+
+  <main id="main">
     <section class="hero" aria-label="Book fast" id="hero">
       <div class="hero__inner">
-        <div class="hero__copy">
+        <div class="hero__copy neonCard">
           <h1 class="hero__h1" id="heroTitle">Skyliner Motel</h1>
-          <p class="hero__p" id="heroSubtitle">Book fast — then take a neon cruise down Route 66.</p>
+          <p class="hero__p" id="heroSubtitle">Book fast — then glow all night on Route 66.</p>
 
           <div class="hero__facts">
             <div class="fact">
@@ -657,8 +79,8 @@
           <div class="hero__cta">
             <a class="btn btn--primary btn--xl" id="bookNowHero" href="#" target="_blank" rel="noopener">BOOK NOW</a>
 
-            <a class="btn btn--route btn--xl" href="#journey" aria-label="Take the Route 66 scroll">
-              <span><span class="routeBadge">66</span> Take the Route 66 scroll</span>
+            <a class="btn btn--route btn--xl" href="#reviews" aria-label="Jump to reviews">
+              <span><span class="routeBadge">★</span> See reviews</span>
             </a>
           </div>
 
@@ -674,9 +96,9 @@
         </a>
       </div>
 
-      <!-- NEW: Gallery section (between sign image and About/Bio) -->
+      <!-- Gallery (Home) -->
       <div class="miniGallery" id="miniGallerySection" hidden>
-        <div class="miniGallery__card">
+        <div class="miniGallery__card neonCard">
           <div class="miniGallery__header">
             <h3 class="miniGallery__title" id="miniGalleryTitle">More photos</h3>
             <div class="miniGallery__hint">Swipe ↔</div>
@@ -685,28 +107,32 @@
         </div>
       </div>
 
-      <!-- NEW: BIO section (sits directly under sign image area) -->
+      <!-- Bio -->
       <div class="bio" id="bioSection" hidden>
-        <div class="bio__card">
+        <div class="bio__card neonCard">
           <h3 class="bio__title" id="bioTitle">About Skyliner Motel</h3>
           <p class="bio__body" id="bioBody"></p>
         </div>
       </div>
     </section>
 
-    <section class="journey" id="journey" aria-label="Route 66 journey">
-      <div class="journey__header">
-        <h2 class="journey__h2">Cruise Route 66</h2>
-        <p class="journey__p">Scroll down the road. Each “stop” is information along the way.</p>
-      </div>
-
-      <div class="road" id="road">
-        <div class="road__spine" aria-hidden="true">
-          <div class="road__line"></div>
-          <div class="road__dashes"></div>
+    <!-- Reviews (sheet-driven) -->
+    <section class="reviews" id="reviews" aria-label="Reviews">
+      <div class="reviews__inner">
+        <div class="reviews__header">
+          <h2 class="reviews__h2">Guests say it best</h2>
+          <p class="reviews__p">Fresh neon, clean rooms, easy booking — updated anytime from your Google Sheet.</p>
         </div>
 
-        <div class="states" id="statesMount" aria-live="polite"></div>
+        <div class="reviews__frame neonCard">
+          <div class="reviews__stars" aria-hidden="true">
+            <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
+          </div>
+
+          <div class="reviews__track" id="reviewsTrack" aria-live="polite"></div>
+
+          <div class="reviews__dots" id="reviewsDots" aria-hidden="true"></div>
+        </div>
       </div>
     </section>
 
@@ -716,476 +142,15 @@
           <div class="footer__brand" id="footerBrand">Skyliner Motel</div>
           <div class="footer__muted" id="footerAddress">—</div>
         </div>
-        <div class="footer__right">
-          <!-- intentionally hidden via CSS to remove redundancy -->
-          <a class="btn btn--primary" id="bookNowFooter" href="#" target="_blank" rel="noopener">BOOK NOW</a>
-        </div>
       </div>
     </footer>
   </main>
 
-  <!-- KEEP the sticky CTA -->
+  <!-- Sticky booking CTA (KEEP) -->
   <a class="stickyBook" id="stickyBook" href="#" target="_blank" rel="noopener" aria-label="Book now">
     <span class="stickyBook__label" id="stickyBookLabel">BOOK NOW</span>
   </a>
 
-  <script>
-    /***********************
-     * SHEET (baseball-style)
-     * ONE sheet, multiple tabs: SiteConfig, Stops, Alerts, Gallery
-     ***********************/
-    const SHEET_ID = "12xCdrziWioRE3SxEeRyZgIvsFxz_gXIfvp5_7yUXXf8";
-    const TAB = { SITE: "SiteConfig", STOPS: "Stops", ALERTS: "Alerts", GALLERY: "Gallery" };
-
-    function gvizCsvUrl(sheetName){
-      const base = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq`;
-      const params = new URLSearchParams({
-        tqx: "out:csv",
-        sheet: sheetName,
-        cb: String(Date.now())
-      });
-      return `${base}?${params.toString()}`;
-    }
-
-    const SHEETS = {
-      SITE_CONFIG_CSV: gvizCsvUrl(TAB.SITE),
-      STOPS_CSV: gvizCsvUrl(TAB.STOPS),
-      ALERTS_CSV: gvizCsvUrl(TAB.ALERTS),
-      GALLERY_CSV: gvizCsvUrl(TAB.GALLERY) /* NEW */
-    };
-
-    const DEFAULTS = {
-      motel_name: "Skyliner Motel",
-      tagline: "Clean, comfortable stays on Route 66",
-      phone: "(555) 123-4567",
-      address_line: "123 Historic Route 66",
-      city_state_zip: "Your City, ST 00000",
-      booking_url: "#",
-      booking_image_url: "",
-      sticky_booking_text: "BOOK NOW",
-
-      /* NEW bio defaults */
-      bio_title: "About Skyliner Motel",
-      bio_body: ""
-    };
-
-    const ROUTE66 = [
-      { key: "illinois",  name: "Illinois",  overlay: "day",    accent: "#ffd54a", headline: "Chicago to the open road", subtext: "Your journey begins on the Mother Road." },
-      { key: "missouri",  name: "Missouri",  overlay: "day",    accent: "#7dd3fc", headline: "Bridges, diners, and neon", subtext: "Classic Americana at every turn." },
-      { key: "kansas",    name: "Kansas",    overlay: "day",    accent: "#86efac", headline: "A quick, iconic stretch", subtext: "Small state, big Route 66 energy." },
-      { key: "oklahoma",  name: "Oklahoma",  overlay: "sunset", accent: "#fbbf24", headline: "Big skies, long horizons", subtext: "Cruise into golden hour." },
-      { key: "texas",     name: "Texas",     overlay: "sunset", accent: "#fb7185", headline: "Wide roads, bright signs", subtext: "Everything feels larger here." },
-      { key: "newmexico", name: "New Mexico",overlay: "sunset", accent: "#f97316", headline: "Desert dusk",              subtext: "Warm tones, quiet miles." },
-      { key: "arizona",   name: "Arizona",   overlay: "night",  accent: "#a78bfa", headline: "Stars and roadside glow",  subtext: "Neon nights and desert air." },
-      { key: "california",name: "California",overlay: "night",  accent: "#fca5a5", headline: "You’ve arrived",           subtext: "Finish strong — book fast, rest easy." }
-    ];
-
-    const STATE_ALIASES = {
-      "il":"illinois","illinois":"illinois",
-      "mo":"missouri","missouri":"missouri",
-      "ks":"kansas","kansas":"kansas",
-      "ok":"oklahoma","oklahoma":"oklahoma",
-      "tx":"texas","texas":"texas",
-      "nm":"newmexico","new mexico":"newmexico","newmexico":"newmexico",
-      "az":"arizona","arizona":"arizona",
-      "ca":"california","california":"california"
-    };
-
-    function parseCSV(csvText){
-      const rows = [];
-      let row = [];
-      let cur = "";
-      let inQuotes = false;
-
-      for (let i = 0; i < csvText.length; i++){
-        const c = csvText[i];
-        const n = csvText[i+1];
-
-        if (c === '"'){
-          if (inQuotes && n === '"'){ cur += '"'; i++; }
-          else { inQuotes = !inQuotes; }
-          continue;
-        }
-
-        if (!inQuotes && c === ","){ row.push(cur); cur = ""; continue; }
-
-        if (!inQuotes && (c === "\n" || c === "\r")){
-          if (c === "\r" && n === "\n") i++;
-          row.push(cur);
-          rows.push(row);
-          row = []; cur = "";
-          continue;
-        }
-
-        cur += c;
-      }
-      row.push(cur);
-      rows.push(row);
-      return rows;
-    }
-
-    function rowsToObjects(rows){
-      if (!rows || rows.length < 2) return [];
-      const headers = rows[0].map(h => (h || "").trim());
-      const out = [];
-      for (let i = 1; i < rows.length; i++){
-        const r = rows[i];
-        if (!r || r.every(x => (x || "").trim() === "")) continue;
-        const obj = {};
-        headers.forEach((h, idx) => { if (h) obj[h] = (r[idx] ?? "").trim(); });
-        out.push(obj);
-      }
-      return out;
-    }
-
-    async function fetchCSV(url){
-      if (!url) return null;
-      const res = await fetch(url, { cache: "no-store" });
-      if (!res.ok) throw new Error(`Failed to fetch CSV (${res.status})`);
-      return await res.text();
-    }
-
-    async function loadSheetObjects(csvUrl){
-      const text = await fetchCSV(csvUrl);
-      if (!text) return [];
-      return rowsToObjects(parseCSV(text));
-    }
-
-    async function loadAll(){
-      const [siteRows, stopRows, alertRows, galleryRows] = await Promise.all([
-        loadSheetObjects(SHEETS.SITE_CONFIG_CSV),
-        loadSheetObjects(SHEETS.STOPS_CSV),
-        loadSheetObjects(SHEETS.ALERTS_CSV).catch(()=>[]),
-        loadSheetObjects(SHEETS.GALLERY_CSV).catch(()=>[]) /* NEW: safe if missing */
-      ]);
-      return {
-        site: siteRows[0] || null,
-        stops: stopRows || [],
-        alerts: alertRows || [],
-        gallery: galleryRows || [] /* NEW */
-      };
-    }
-
-    function setText(id, value){
-      const el = document.getElementById(id);
-      if (el) el.textContent = value ?? "";
-    }
-    function setAttr(id, attr, value){
-      const el = document.getElementById(id);
-      if (el) el.setAttribute(attr, value ?? "");
-    }
-    function safeUrl(url){
-      if (!url) return "";
-      try { return new URL(url, window.location.href).href; }
-      catch { return ""; }
-    }
-
-    function applySiteConfig(site){
-      const cfg = Object.assign({}, DEFAULTS, (site || {}));
-
-      setText("motelName", cfg.motel_name);
-      setText("tagline", cfg.tagline);
-      setText("heroTitle", cfg.motel_name);
-      setText("footerBrand", cfg.motel_name);
-
-      const phoneDigits = (cfg.phone || "").replace(/[^0-9+]/g, "");
-      const telHref = phoneDigits ? `tel:${phoneDigits}` : "tel:";
-      setAttr("phoneLink","href",telHref);
-      setAttr("phoneText","href",telHref);
-      setText("phoneText", cfg.phone);
-
-      const address = `${cfg.address_line} ${cfg.city_state_zip}`.trim();
-      const mapsUrl = cfg.google_maps_embed_url
-        ? safeUrl(cfg.google_maps_embed_url)
-        : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
-
-      setAttr("mapsLink","href",mapsUrl);
-      setAttr("addressText","href",mapsUrl);
-      setText("addressText", cfg.address_line);
-
-      const bookingUrl = safeUrl(cfg.booking_url) || "#";
-      ["bookNowTop","bookNowHero","stickyBook","bookingCard","bookNowFooter"].forEach(id => setAttr(id,"href",bookingUrl));
-      setText("stickyBookLabel", cfg.sticky_booking_text || "BOOK NOW");
-      setText("footerAddress", `${cfg.address_line} • ${cfg.city_state_zip}`);
-
-      const imgUrl = safeUrl(cfg.booking_image_url);
-      const img = document.getElementById("bookingImage");
-      if (imgUrl && img){
-        img.src = imgUrl;
-        const link = document.createElement("link");
-        link.rel = "preload";
-        link.as = "image";
-        link.href = imgUrl;
-        document.head.appendChild(link);
-      }
-
-      if (!cfg.booking_url || cfg.booking_url === "#"){
-        const sticky = document.getElementById("stickyBook");
-        if (sticky) sticky.style.display = "none";
-      }
-
-      /* NEW: Bio section */
-      const bioSection = document.getElementById("bioSection");
-      const bioBody = (cfg.bio_body || "").trim();
-      if (bioSection && bioBody){
-        setText("bioTitle", (cfg.bio_title || "About Skyliner Motel"));
-        setText("bioBody", bioBody);
-        bioSection.hidden = false;
-      } else if (bioSection){
-        bioSection.hidden = true;
-      }
-
-      return cfg;
-    }
-
-    function el(tag, className, attrs={}){
-      const e = document.createElement(tag);
-      if (className) e.className = className;
-      for (const [k,v] of Object.entries(attrs)) e.setAttribute(k, v);
-      return e;
-    }
-
-    function normalizeSide(side){
-      const s = (side || "").toLowerCase();
-      if (s === "left" || s === "right" || s === "center") return s;
-      return "";
-    }
-
-    function normalizeStateKey(input){
-      const raw = (input || "").trim().toLowerCase();
-      return STATE_ALIASES[raw] || raw || "";
-    }
-
-    function stopCta(stop){
-      if (!stop.cta_text || !stop.cta_url) return null;
-      const isHash = stop.cta_url.startsWith("#");
-      const a = el("a", "btn btn--route", { href: stop.cta_url, target: isHash ? "_self" : "_blank", rel: "noopener" });
-      a.innerHTML = `<span><span class="routeBadge">66</span> ${stop.cta_text}</span>`;
-      return a;
-    }
-
-    function renderStateBand(routeState, stateStops){
-      const band = el("section","state",{
-        "data-theme": routeState.key,
-        "data-overlay": routeState.overlay
-      });
-
-      const overlay = el("div","state__overlay");
-      const inner = el("div","state__inner");
-
-      const header = el("div","state__header");
-      const kicker = el("div","state__kicker");
-      const dot = el("span","state__dot",{"aria-hidden":"true"});
-      kicker.appendChild(dot);
-
-      const name = document.createElement("span");
-      name.textContent = routeState.name.toUpperCase();
-      kicker.appendChild(name);
-
-      const h = el("div","state__headline");
-      h.textContent = routeState.headline;
-
-      const p = el("p","state__subtext");
-      p.textContent = routeState.subtext;
-
-      header.appendChild(kicker);
-      header.appendChild(h);
-      header.appendChild(p);
-      inner.appendChild(header);
-
-      let flip = true;
-      for (const stop of (stateStops || [])){
-        const forcedSide = normalizeSide(stop.side);
-        const side = forcedSide || (flip ? "left" : "right");
-        if (!forcedSide) flip = !flip;
-
-        const s = el("article","stop",{"data-side":side,"data-stop-type":(stop.stop_type||"text")});
-        const pin = el("div","stop__pin",{"aria-hidden":"true"});
-        const card = el("div","stop__card");
-
-        if ((stop.title || "").trim()){
-          const t = el("h3","stop__title");
-          t.textContent = stop.title;
-          card.appendChild(t);
-        }
-
-        if ((stop.body || "").trim()){
-          const b = el("p","stop__body");
-          b.textContent = stop.body;
-          card.appendChild(b);
-        }
-
-        if ((stop.image_url || "").trim()){
-          const media = el("div","stop__media");
-          const img = document.createElement("img");
-          img.loading = "lazy";
-          img.decoding = "async";
-          img.alt = stop.image_caption || stop.title || "Photo";
-          img.src = stop.image_url;
-          media.appendChild(img);
-
-          if ((stop.image_caption || "").trim()){
-            const cap = el("div","stop__caption");
-            cap.textContent = stop.image_caption;
-            media.appendChild(cap);
-          }
-          card.appendChild(media);
-        }
-
-        const cta = stopCta(stop);
-        if (cta){
-          const wrap = el("div","stop__cta");
-          wrap.appendChild(cta);
-          card.appendChild(wrap);
-        }
-
-        s.appendChild(pin);
-        s.appendChild(card);
-        inner.appendChild(s);
-      }
-
-      band.appendChild(overlay);
-      band.appendChild(inner);
-      return band;
-    }
-
-    function renderRoute66Journey(stops){
-      const mount = document.getElementById("statesMount");
-      if (!mount) return;
-
-      const normalizedStops = (stops || []).map(s => ({
-        ...s,
-        _stateKey: normalizeStateKey(s.state || s.state_theme_key || s.route_state || "")
-      }));
-
-      const byState = new Map();
-      for (const rs of ROUTE66) byState.set(rs.key, []);
-
-      for (const stop of normalizedStops){
-        const key = byState.has(stop._stateKey) ? stop._stateKey : null;
-        if (key) byState.get(key).push(stop);
-      }
-
-      for (const rs of ROUTE66){
-        byState.get(rs.key).sort((a,b)=> (Number(a.order)||0) - (Number(b.order)||0));
-      }
-
-      mount.innerHTML = "";
-      for (const rs of ROUTE66){
-        mount.appendChild(renderStateBand(rs, byState.get(rs.key)));
-      }
-    }
-
-    /* ========= NEW: render mini gallery from Gallery tab ========= */
-    function renderMiniGallery(galleryRows){
-      const section = document.getElementById("miniGallerySection");
-      const mount = document.getElementById("miniGalleryMount");
-      if (!section || !mount) return;
-
-      const items = (galleryRows || [])
-        .filter(r => (r.image_url || "").trim())
-        .sort((a,b)=> (Number(a.order)||0) - (Number(b.order)||0));
-
-      if (!items.length){
-        section.hidden = true;
-        return;
-      }
-
-      mount.innerHTML = "";
-      for (const it of items){
-        const item = el("div","miniGallery__item");
-        const thumb = el("div","miniGallery__thumb");
-
-        const img = document.createElement("img");
-        img.loading = "lazy";
-        img.decoding = "async";
-        img.src = it.image_url;
-        img.alt = (it.alt || it.caption || "Motel photo").trim();
-
-        thumb.appendChild(img);
-        item.appendChild(thumb);
-
-        const capText = (it.caption || "").trim();
-        if (capText){
-          const cap = el("div","miniGallery__caption");
-          cap.textContent = capText;
-          item.appendChild(cap);
-        }
-
-        mount.appendChild(item);
-      }
-
-      section.hidden = false;
-    }
-
-    function applyAlerts(alerts){
-      const bar = document.getElementById("alertBar");
-      const text = document.getElementById("alertText");
-      if (!bar || !text) return;
-
-      const active = (alerts || []).find(a =>
-        String(a.active || "").toLowerCase() === "true" && (a.message || "").trim()
-      );
-
-      if (!active){ bar.hidden = true; return; }
-      text.textContent = active.message;
-      bar.hidden = false;
-    }
-
-    function setThemeFromStateBand(band){
-      if (!band) return;
-      const overlay = band.getAttribute("data-overlay") || "day";
-      const theme = (band.getAttribute("data-theme") || "").toLowerCase();
-
-      document.body.setAttribute("data-overlay", overlay);
-
-      const found = ROUTE66.find(s => s.key === theme);
-      document.documentElement.style.setProperty("--accent", (found && found.accent) ? found.accent : "#ffd54a");
-    }
-
-    function initStopObserver(){
-      const stops = document.querySelectorAll(".stop");
-      const io = new IntersectionObserver((entries)=>{
-        for (const e of entries){
-          if (e.isIntersecting){
-            e.target.classList.add("is-in");
-            io.unobserve(e.target);
-          }
-        }
-      }, { threshold: 0.12 });
-      stops.forEach(s => io.observe(s));
-    }
-
-    function initStateObserver(){
-      const bands = document.querySelectorAll(".state");
-      if (!bands.length) return;
-
-      const io = new IntersectionObserver((entries)=>{
-        const visible = entries
-          .filter(e => e.isIntersecting)
-          .sort((a,b)=> (b.intersectionRatio || 0) - (a.intersectionRatio || 0));
-        if (visible[0]) setThemeFromStateBand(visible[0].target);
-      }, { threshold: [0.2,0.35,0.5,0.65] });
-
-      bands.forEach(b => io.observe(b));
-    }
-
-    (async function main(){
-      let data = { site:null, stops:[], alerts:[], gallery:[] };
-      try { data = await loadAll(); }
-      catch (err) { console.warn("Sheet load failed (using defaults):", err); }
-
-      applySiteConfig(data.site);
-      renderMiniGallery(data.gallery); /* NEW */
-      renderRoute66Journey(data.stops);
-      applyAlerts(data.alerts);
-
-      initStopObserver();
-      initStateObserver();
-
-      const firstBand = document.querySelector(".state");
-      if (firstBand) setThemeFromStateBand(firstBand);
-    })();
-  </script>
+  <script src="./app.js" defer></script>
 </body>
 </html>

@@ -1,27 +1,12 @@
 /***********************
- * app.js — Skyliner Motel
- * - Keeps all booking functionality (top + sticky + card)
+ * app.js — Skyliner Motel (DROP-IN)
  * - Loads content from ONE Google Sheet with multiple tabs
- * - Works across multiple HTML pages (index / town / route66 / history)
- *   by detecting which mounts exist on the current page.
- *
- * Expected Google Sheet tabs:
- *  - SiteConfig
- *  - Alerts
- *  - Gallery
- *  - Reviews
- *  - Stops        (Route 66 scroll page)
- *  - Town         (Things to see in town page)
- *  - History      (Motel history page)
- *
- * This file is defensive: if a section/mount doesn’t exist on the page,
- * it silently skips it (so the same app.js can be used on every page).
+ * - Works across multiple pages by skipping mounts that don’t exist
+ * - Keeps booking links (top + hero + sticky + card)
+ * - Fixes menu reliability on mobile (creates backdrop if missing, robust selectors)
  ***********************/
 
 (() => {
-  /***********************
-   * SHEET CONFIG
-   ***********************/
   const SHEET_ID = "12xCdrziWioRE3SxEeRyZgIvsFxz_gXIfvp5_7yUXXf8";
 
   const TAB = {
@@ -68,9 +53,6 @@
     bio_body: ""
   };
 
-  /***********************
-   * ROUTE 66 BANDS (for route66 page)
-   ***********************/
   const ROUTE66 = [
     { key: "illinois", name: "Illinois", overlay: "day", accent: "#ffd54a", headline: "Chicago to the open road", subtext: "Your journey begins on the Mother Road." },
     { key: "missouri", name: "Missouri", overlay: "day", accent: "#7dd3fc", headline: "Bridges, diners, and neon", subtext: "Classic Americana at every turn." },
@@ -93,20 +75,10 @@
     ca: "california", california: "california"
   };
 
-  /***********************
-   * UTILITIES
-   ***********************/
   const $ = (id) => document.getElementById(id);
 
-  function setText(id, value) {
-    const el = $(id);
-    if (el) el.textContent = value ?? "";
-  }
-
-  function setAttr(id, attr, value) {
-    const el = $(id);
-    if (el) el.setAttribute(attr, value ?? "");
-  }
+  function setText(id, value) { const el = $(id); if (el) el.textContent = value ?? ""; }
+  function setAttr(id, attr, value) { const el = $(id); if (el) el.setAttribute(attr, value ?? ""); }
 
   function safeUrl(url) {
     if (!url) return "";
@@ -143,7 +115,6 @@
 
       cur += c;
     }
-
     row.push(cur);
     rows.push(row);
     return rows;
@@ -157,10 +128,7 @@
       const r = rows[i];
       if (!r || r.every(x => (x || "").trim() === "")) continue;
       const obj = {};
-      headers.forEach((h, idx) => {
-        if (!h) return;
-        obj[h] = (r[idx] ?? "").trim();
-      });
+      headers.forEach((h, idx) => { if (h) obj[h] = (r[idx] ?? "").trim(); });
       out.push(obj);
     }
     return out;
@@ -197,27 +165,20 @@
     return STATE_ALIASES[raw] || raw || "";
   }
 
-  /***********************
-   * CORE APPLY: SiteConfig
-   * (keeps booking top + sticky + card)
-   ***********************/
   function applySiteConfig(site) {
     const cfg = Object.assign({}, DEFAULTS, (site || {}));
 
-    // Brand text (only if those IDs exist on this page)
     setText("motelName", cfg.motel_name);
     setText("tagline", cfg.tagline);
     setText("heroTitle", cfg.motel_name);
     setText("footerBrand", cfg.motel_name);
 
-    // Phone links
     const phoneDigits = (cfg.phone || "").replace(/[^0-9+]/g, "");
     const telHref = phoneDigits ? `tel:${phoneDigits}` : "tel:";
     setAttr("phoneLink", "href", telHref);
     setAttr("phoneText", "href", telHref);
     setText("phoneText", cfg.phone);
 
-    // Maps link
     const address = `${cfg.address_line} ${cfg.city_state_zip}`.trim();
     const mapsUrl = cfg.google_maps_embed_url
       ? safeUrl(cfg.google_maps_embed_url)
@@ -227,22 +188,23 @@
     setAttr("addressText", "href", mapsUrl);
     setText("addressText", cfg.address_line);
 
-    // Booking URL — KEEP PRIORITY: top + hero + sticky + card
     const bookingUrl = safeUrl(cfg.booking_url) || "#";
-    ["bookNowTop", "bookNowHero", "stickyBook", "bookingCard", "bookNowFooter"].forEach(id => {
-      setAttr(id, "href", bookingUrl);
-    });
-    setText("stickyBookLabel", cfg.sticky_booking_text || "BOOK NOW");
+    [
+      "bookNowTop",
+      "bookNowHero",
+      "stickyBook",
+      "bookingCard",
+      "bookNowFooter",
+      "menuBookNow"
+    ].forEach(id => setAttr(id, "href", bookingUrl));
 
-    // Footer address
+    setText("stickyBookLabel", cfg.sticky_booking_text || "BOOK NOW");
     setText("footerAddress", `${cfg.address_line} • ${cfg.city_state_zip}`);
 
-    // Booking image (if present on page)
     const imgUrl = safeUrl(cfg.booking_image_url);
     const img = $("bookingImage");
     if (imgUrl && img) {
       img.src = imgUrl;
-      // Preload
       const link = document.createElement("link");
       link.rel = "preload";
       link.as = "image";
@@ -250,13 +212,11 @@
       document.head.appendChild(link);
     }
 
-    // If no booking URL, hide sticky (but do NOT remove functionality otherwise)
     if (!cfg.booking_url || cfg.booking_url === "#") {
       const sticky = $("stickyBook");
       if (sticky) sticky.style.display = "none";
     }
 
-    // Bio section (if present on page)
     const bioSection = $("bioSection");
     const bioBody = (cfg.bio_body || "").trim();
     if (bioSection && bioBody) {
@@ -270,9 +230,6 @@
     return cfg;
   }
 
-  /***********************
-   * Alerts
-   ***********************/
   function applyAlerts(alerts) {
     const bar = $("alertBar");
     const text = $("alertText");
@@ -287,14 +244,6 @@
     bar.hidden = false;
   }
 
-  /***********************
-   * Mini Gallery (home page)
-   * Expected Gallery columns:
-   *  - order (number)
-   *  - image_url
-   *  - caption (optional)
-   *  - alt (optional)
-   ***********************/
   function renderMiniGallery(galleryRows) {
     const section = $("miniGallerySection");
     const mount = $("miniGalleryMount");
@@ -304,10 +253,7 @@
       .filter(r => (r.image_url || "").trim())
       .sort((a, b) => (Number(a.order) || 0) - (Number(b.order) || 0));
 
-    if (!items.length) {
-      section.hidden = true;
-      return;
-    }
+    if (!items.length) { section.hidden = true; return; }
 
     mount.innerHTML = "";
     for (const it of items) {
@@ -337,22 +283,8 @@
   }
 
   /***********************
-   * Reviews Carousel (home page)
-   * Expected Reviews columns:
-   *  - order (number)
-   *  - name (optional)     e.g., "Jamie P."
-   *  - source (optional)   e.g., "Google"
-   *  - quote (required)
-   *  - date (optional)     e.g., "Jan 2026"
-   *  - active (optional)   true/false (defaults true if blank)
-   *
-   * Each review renders 5 stars automatically.
-   *
-   * Requires these IDs on the page:
-   *  - reviewsSection
-   *  - reviewsMount
-   * Optional:
-   *  - reviewsTitle
+   * REVIEWS — FIXED markup
+   * Stars + quote + meta are INSIDE the same card.
    ***********************/
   function renderReviews(reviewsRows) {
     const section = $("reviewsSection");
@@ -366,12 +298,8 @@
       })
       .sort((a, b) => (Number(a.order) || 0) - (Number(b.order) || 0));
 
-    if (!items.length) {
-      section.hidden = true;
-      return;
-    }
+    if (!items.length) { section.hidden = true; return; }
 
-    // Build
     mount.innerHTML = "";
     const track = el("div", "reviewsTrack", { "aria-label": "Guest reviews" });
 
@@ -381,23 +309,22 @@
         "aria-hidden": idx === 0 ? "false" : "true"
       });
 
-      // Stars (always 5)
       const stars = el("div", "reviewStars", { "aria-label": "5 out of 5 stars" });
-      stars.innerHTML = "★★★★★";
-      bubble.appendChild(stars);
+      stars.textContent = "★★★★★";
 
       const quote = el("div", "reviewQuote");
       quote.textContent = r.quote;
-      bubble.appendChild(quote);
 
       const meta = el("div", "reviewMeta");
       const name = (r.name || "").trim();
       const source = (r.source || "").trim();
       const date = (r.date || "").trim();
-
-      // Build meta line like: "Jamie P. • Google • Jan 2026"
       const parts = [name, source, date].filter(Boolean);
       meta.textContent = parts.join(" • ");
+
+      // All inside bubble (card)
+      bubble.appendChild(stars);
+      bubble.appendChild(quote);
       bubble.appendChild(meta);
 
       track.appendChild(bubble);
@@ -406,7 +333,6 @@
     mount.appendChild(track);
     section.hidden = false;
 
-    // Auto-advance
     initReviewsCarousel(track, items.length);
   }
 
@@ -422,15 +348,12 @@
         b.classList.toggle("is-active", on);
         b.setAttribute("aria-hidden", on ? "false" : "true");
       });
-
-      // If your CSS uses horizontal snapping, gently scroll into view
       const target = bubbles[i];
       if (target && typeof target.scrollIntoView === "function") {
         target.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
       }
     }
 
-    // Pause on hover / touch
     let paused = false;
     const pause = () => { paused = true; };
     const resume = () => { paused = false; };
@@ -440,7 +363,6 @@
     trackEl.addEventListener("touchstart", pause, { passive: true });
     trackEl.addEventListener("touchend", resume, { passive: true });
 
-    // Advance every 4.5s
     setActive(0);
     window.setInterval(() => {
       if (paused) return;
@@ -450,19 +372,7 @@
   }
 
   /***********************
-   * Route 66 Journey (route66 page)
-   * Uses same Stop rendering style as your original file.
-   * Expected Stops columns:
-   *  - state (or state_theme_key / route_state)
-   *  - order (number)
-   *  - side (left/right/center optional)
-   *  - stop_type (optional)
-   *  - title
-   *  - body
-   *  - image_url (optional)
-   *  - image_caption (optional)
-   *  - cta_text (optional)
-   *  - cta_url (optional)
+   * Route 66 (unchanged behavior)
    ***********************/
   function stopCta(stop) {
     if (!stop.cta_text || !stop.cta_url) return null;
@@ -473,11 +383,7 @@
   }
 
   function renderStateBand(routeState, stateStops) {
-    const band = el("section", "state", {
-      "data-theme": routeState.key,
-      "data-overlay": routeState.overlay
-    });
-
+    const band = el("section", "state", { "data-theme": routeState.key, "data-overlay": routeState.overlay });
     const overlay = el("div", "state__overlay");
     const inner = el("div", "state__inner");
 
@@ -502,7 +408,6 @@
     inner.appendChild(header);
 
     let flip = true;
-
     for (const stop of (stateStops || [])) {
       const forcedSide = normalizeSide(stop.side);
       const side = forcedSide || (flip ? "left" : "right");
@@ -538,7 +443,6 @@
           cap.textContent = stop.image_caption;
           media.appendChild(cap);
         }
-
         card.appendChild(media);
       }
 
@@ -581,11 +485,8 @@
     }
 
     mount.innerHTML = "";
-    for (const rs of ROUTE66) {
-      mount.appendChild(renderStateBand(rs, byState.get(rs.key)));
-    }
+    for (const rs of ROUTE66) mount.appendChild(renderStateBand(rs, byState.get(rs.key)));
 
-    // Observers for animations/theme (only if those classes exist)
     initStopObserver();
     initStateObserver();
 
@@ -634,21 +535,6 @@
     bands.forEach(b => io.observe(b));
   }
 
-  /***********************
-   * Town Page (town.html)
-   * Expected Town columns:
-   *  - order
-   *  - title
-   *  - body
-   *  - image_url (optional)
-   *  - image_caption (optional)
-   *  - cta_text (optional)
-   *  - cta_url (optional)
-   *  - category (optional) (for grouping/filter later)
-   *
-   * Required mount ID:
-   *  - townMount
-   ***********************/
   function renderTown(townRows) {
     const mount = $("townMount");
     if (!mount) return;
@@ -693,7 +579,6 @@
           cap.textContent = capText;
           media.appendChild(cap);
         }
-
         inner.appendChild(media);
       }
 
@@ -714,19 +599,6 @@
     }
   }
 
-  /***********************
-   * History Page (history.html)
-   * Expected History columns:
-   *  - order
-   *  - year (optional)
-   *  - title
-   *  - body
-   *  - image_url (optional)
-   *  - image_caption (optional)
-   *
-   * Required mount ID:
-   *  - historyMount
-   ***********************/
   function renderHistory(historyRows) {
     const mount = $("historyMount");
     if (!mount) return;
@@ -773,7 +645,6 @@
           cap.textContent = capText;
           media.appendChild(cap);
         }
-
         inner.appendChild(media);
       }
 
@@ -783,56 +654,77 @@
   }
 
   /***********************
-   * MENU (optional)
-   * If your HTML includes:
-   *  - menuBtn
-   *  - menuPanel
-   *  - menuBackdrop
-   * Then this will wire it up.
+   * MENU — FIXED reliability
+   * Looks for:
+   *  - #menuBtn (or [data-menu-btn])
+   *  - #menuPanel (or [data-menu-panel])
+   *  - #menuBackdrop (or [data-menu-backdrop])
    ***********************/
   function initMenu() {
-    const btn = $("menuBtn");
-    const panel = $("menuPanel");
-    const backdrop = $("menuBackdrop");
+    const btn =
+      $("menuBtn") ||
+      document.querySelector("[data-menu-btn]");
+
+    const panel =
+      $("menuPanel") ||
+      document.querySelector("[data-menu-panel]");
 
     if (!btn || !panel) return;
 
+    // Ensure a proper clickable button on mobile
+    if (btn.tagName.toLowerCase() !== "button") {
+      // If someone used <a>, prevent navigation
+      btn.addEventListener("click", (e) => e.preventDefault());
+    } else {
+      btn.setAttribute("type", "button");
+    }
+
+    let backdrop =
+      $("menuBackdrop") ||
+      document.querySelector("[data-menu-backdrop]");
+
+    // Auto-create backdrop if missing
+    if (!backdrop) {
+      backdrop = document.createElement("div");
+      backdrop.id = "menuBackdrop";
+      backdrop.className = "menuBackdrop";
+      backdrop.setAttribute("aria-hidden", "true");
+      document.body.appendChild(backdrop);
+    }
+
     const open = () => {
       panel.classList.add("is-open");
+      backdrop.classList.add("is-open");
       btn.setAttribute("aria-expanded", "true");
-      if (backdrop) backdrop.classList.add("is-open");
       document.body.classList.add("menu-open");
     };
 
     const close = () => {
       panel.classList.remove("is-open");
+      backdrop.classList.remove("is-open");
       btn.setAttribute("aria-expanded", "false");
-      if (backdrop) backdrop.classList.remove("is-open");
       document.body.classList.remove("menu-open");
     };
 
-    btn.addEventListener("click", () => {
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
       const isOpen = panel.classList.contains("is-open");
       isOpen ? close() : open();
     });
 
-    if (backdrop) backdrop.addEventListener("click", close);
+    backdrop.addEventListener("click", close);
 
-    // Close on ESC
     document.addEventListener("keydown", (e) => {
       if (e.key === "Escape") close();
     });
 
-    // Close when clicking a link inside the panel
     panel.addEventListener("click", (e) => {
       const a = e.target && e.target.closest ? e.target.closest("a") : null;
       if (a) close();
     });
   }
 
-  /***********************
-   * LOAD EVERYTHING (defensive)
-   ***********************/
   async function loadAll() {
     const loaders = [
       loadSheetObjects(SHEETS.SITE_CONFIG_CSV).catch(() => []),
@@ -844,7 +736,8 @@
       loadSheetObjects(SHEETS.HISTORY_CSV).catch(() => [])
     ];
 
-    const [siteRows, alertRows, galleryRows, reviewRows, stopRows, townRows, historyRows] = await Promise.all(loaders);
+    const [siteRows, alertRows, galleryRows, reviewRows, stopRows, townRows, historyRows] =
+      await Promise.all(loaders);
 
     return {
       site: siteRows[0] || null,
@@ -857,39 +750,24 @@
     };
   }
 
-  /***********************
-   * MAIN
-   ***********************/
   async function main() {
     initMenu();
 
     let data = { site: null, alerts: [], gallery: [], reviews: [], stops: [], town: [], history: [] };
+    try { data = await loadAll(); }
+    catch (err) { console.warn("Sheet load failed (using defaults):", err); }
 
-    try {
-      data = await loadAll();
-    } catch (err) {
-      console.warn("Sheet load failed (using defaults):", err);
-    }
-
-    // Always apply site config + alerts if those elements exist on this page
     applySiteConfig(data.site);
     applyAlerts(data.alerts);
 
-    // Home page components (only render if mounts exist)
     renderMiniGallery(data.gallery);
     renderReviews(data.reviews);
 
-    // Route 66 page
     renderRoute66Journey(data.stops);
-
-    // Town page
     renderTown(data.town);
-
-    // History page
     renderHistory(data.history);
   }
 
-  // Kick off after DOM ready
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", main);
   } else {

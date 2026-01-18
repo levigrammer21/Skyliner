@@ -962,3 +962,30 @@ body.menu-open{ overflow:hidden; }
 /* Meta layout keeps it clean */
 .reviewBubble__who{ opacity: .95; }
 .reviewBubble__when{ opacity: .85; text-align:right; }
+
+/* ===== Topbar button order + Menu emphasis (MOBILE) ===== */
+
+/* Reorder pills: Call, Map, Menu (without changing HTML) */
+.topbar__meta #phoneLink { order: 1; }
+.topbar__meta #mapsLink  { order: 2; }
+.topbar__meta #menuBtn   { order: 3; }
+
+/* Make Menu look more usable */
+.topbar__meta #menuBtn{
+  color: #fff !important;
+  font-weight: 1000 !important;
+  font-size: 14px !important;         /* slightly bigger text */
+  padding: 12px 14px !important;      /* slightly bigger pill */
+  border-color: rgba(255,255,255,0.22) !important;
+  background: rgba(255,255,255,0.08) !important;
+  box-shadow:
+    0 0 26px rgba(57,213,255,0.22),
+    0 0 18px rgba(255,79,216,0.14) !important;
+}
+
+/* Keep Call/Map a touch smaller so Menu reads as primary */
+.topbar__meta #phoneLink,
+.topbar__meta #mapsLink{
+  padding: 10px 12px;
+  font-size: 13px;
+}

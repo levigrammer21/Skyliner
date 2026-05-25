@@ -11,10 +11,8 @@ function renderSign() {
   const stage = document.getElementById('sign-stage');
   if (!stage) return;
   stage.innerHTML = `
-    <div class="sign__spike" aria-hidden="true"></div>
-    <div class="sign__arrow" aria-hidden="true">
-      <div class="sign__arrow-shape"></div>
-    </div>
+    <div class="sign__posts" aria-hidden="true"></div>
+    <div class="sign__arrow" aria-hidden="true"></div>
     <div class="sign__panel" aria-hidden="true"></div>
     <div class="sign__motel" aria-hidden="true">
       <div class="sign__letter">M</div>
@@ -26,7 +24,7 @@ function renderSign() {
     <div class="sign__header" aria-hidden="true">
       <span class="sign__header-text">Skyliner</span>
     </div>
-    <div class="sign__post" aria-hidden="true"></div>
+    <div class="sign__vacancy" aria-hidden="true">VACANCY</div>
   `;
 }
 

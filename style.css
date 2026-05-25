@@ -223,19 +223,26 @@ a { color: inherit; text-decoration: none; }
 }
 
 /* ============================================================
-   THE SIGN — pure CSS recreation of the actual Skyliner sign
-   Layered: ambient halo → red arrow → turquoise back panel
-            → MOTEL letter boxes → tilted Skyliner header
+   THE SIGN — pure CSS recreation matching the real Skyliner
+   
+   Real-sign structure (from bottom up, layered z-index):
+   - 2 black support posts behind everything
+   - Tall red diamond "arrow" pierces from top spike to bottom point
+   - Cream/yellow vertical panel sits in front, holds MOTEL letters
+   - 5 red-bordered letter boxes with white M-O-T-E-L on cream
+   - Teal parallelogram header (tilted up to the right) sits on top
+   - White cursive "Skyliner" inside the header
+   - NO VACANCY / VACANCY teal panel hangs below
    ============================================================ */
 
 .sign-stage {
   position: relative;
   width: 100%;
-  max-width: 360px;
-  aspect-ratio: 9 / 16;
+  max-width: 380px;
+  aspect-ratio: 5 / 9;
   margin: 0 auto;
   filter: drop-shadow(0 0 60px rgba(46, 230, 255, 0.18))
-          drop-shadow(0 0 80px rgba(255, 42, 58, 0.12));
+          drop-shadow(0 0 80px rgba(255, 42, 58, 0.14));
   animation: sign-rise 1.2s cubic-bezier(.16,1,.3,1) 0.2s both;
 }
 
@@ -253,17 +260,20 @@ a { color: inherit; text-decoration: none; }
   filter: blur(70px);
   z-index: 0;
   opacity: 0;
+  pointer-events: none;
   animation: halo-on 2.4s ease-out 0.8s forwards, halo-pulse 6s ease-in-out 3.5s infinite;
 }
 
 .sign-stage::before {
-  width: 80%; height: 18%;
-  top: 8%; left: 10%;
+  /* turquoise halo around the header */
+  width: 85%; height: 22%;
+  top: 4%; left: 7%;
   background: var(--turquoise-glow);
 }
 .sign-stage::after {
-  width: 95%; height: 80%;
-  top: 12%; left: 2%;
+  /* red halo along the arrow body */
+  width: 80%; height: 75%;
+  top: 12%; left: 18%;
   background: var(--red-glow);
   animation-delay: 1.1s, 4s;
 }
@@ -274,97 +284,93 @@ a { color: inherit; text-decoration: none; }
   45%  { opacity: 0; }
   60%  { opacity: 0.6; }
   75%  { opacity: 0.15; }
-  100% { opacity: 0.7; transform: scale(1); }
+  100% { opacity: 0.65; transform: scale(1); }
 }
 
 @keyframes halo-pulse {
-  0%, 100% { opacity: 0.7; }
-  50%      { opacity: 0.95; }
+  0%, 100% { opacity: 0.65; }
+  50%      { opacity: 0.9; }
 }
 
-/* Red arrow chevron — sits behind everything */
-.sign__arrow {
+/* Two black support posts running floor-to-ceiling behind the sign */
+.sign__posts {
   position: absolute;
-  left: 50%;
-  top: 0;
-  transform: translateX(-50%);
-  width: 78%;
-  height: 100%;
+  inset: 0;
   z-index: 1;
   pointer-events: none;
 }
-
-/* The chevron itself — a polygon shape with double red neon outline */
-.sign__arrow-shape {
+.sign__posts::before,
+.sign__posts::after {
+  content: '';
   position: absolute;
-  top: 4%;
-  left: 0;
-  right: 0;
-  bottom: 6%;
+  top: 8%;
+  bottom: -4%;
+  width: 4px;
+  background: linear-gradient(to bottom, #1a1f2e 0%, #0a0e18 100%);
+  box-shadow: 0 0 4px rgba(0,0,0,0.8);
+}
+.sign__posts::before { left: 32%; }
+.sign__posts::after  { left: 56%; }
+
+/* ============================================================
+   THE RED ARROW — tall vertical diamond, spike on top
+   Built as a single clip-path polygon from spike-tip to bottom-point
+   ============================================================ */
+.sign__arrow {
+  position: absolute;
+  left: 56%;          /* offset right of center, like real sign */
+  top: 2%;
+  width: 38%;
+  height: 92%;
+  transform: translateX(-50%);
+  z-index: 2;
+  pointer-events: none;
+  background: linear-gradient(to bottom,
+    #ff3845 0%,
+    #e62030 50%,
+    #c4181f 100%);
   clip-path: polygon(
-    50%  0%,        /* top spike */
-    52%  3%,
-    56%  16%,
-    100% 16%,       /* top-right shoulder */
-    100% 50%,
+    50%  0%,        /* spike tip */
+    52%  10%,
+    55%  18%,       /* shoulder right of spike */
+    100% 22%,       /* top-right corner of diamond */
+    62%  90%,       /* right side narrowing toward bottom point */
     50%  100%,      /* bottom point */
-    0%   50%,
-    0%   16%,       /* top-left shoulder */
-    44%  16%,
-    48%  3%
+    38%  90%,       /* left side */
+    0%   22%,       /* top-left corner */
+    45%  18%,       /* shoulder left of spike */
+    48%  10%
   );
-  background:
-    linear-gradient(to bottom, var(--red) 0%, #c41827 100%);
   opacity: 0;
   animation: arrow-on 2.4s ease-out 0.6s forwards;
   box-shadow:
-    0 0 20px var(--red),
-    0 0 40px rgba(255, 42, 58, 0.5),
-    inset 0 0 30px rgba(0,0,0,0.4);
+    0 0 24px rgba(255, 42, 58, 0.6),
+    0 0 60px rgba(255, 42, 58, 0.35);
 }
 
-/* Inner cutout to make it a double-outline rather than solid */
-.sign__arrow-shape::before {
+/* The inner red neon outline that traces the edge */
+.sign__arrow::before {
   content: '';
   position: absolute;
-  inset: 12px;
+  inset: 0;
+  background:
+    linear-gradient(to bottom,
+      transparent 0%,
+      rgba(255, 200, 200, 0.25) 30%,
+      transparent 60%);
   clip-path: polygon(
     50%  0%,
-    52%  3%,
-    56%  16%,
-    100% 16%,
-    100% 50%,
+    52%  10%,
+    55%  18%,
+    100% 22%,
+    62%  90%,
     50%  100%,
-    0%   50%,
-    0%   16%,
-    44%  16%,
-    48%  3%
+    38%  90%,
+    0%   22%,
+    45%  18%,
+    48%  10%
   );
-  background: var(--ink);
-}
-
-/* The single inner red neon line that makes the double outline */
-.sign__arrow-shape::after {
-  content: '';
-  position: absolute;
-  inset: 22px;
-  clip-path: polygon(
-    50%  0%,
-    52%  3%,
-    56%  16%,
-    100% 16%,
-    100% 50%,
-    50%  100%,
-    0%   50%,
-    0%   16%,
-    44%  16%,
-    48%  3%
-  );
-  background: transparent;
-  border: 2px solid transparent;
-  box-shadow:
-    inset 0 0 0 2px var(--red),
-    inset 0 0 12px var(--red-glow);
+  pointer-events: none;
 }
 
 @keyframes arrow-on {
@@ -378,25 +384,25 @@ a { color: inherit; text-decoration: none; }
   100% { opacity: 1; }
 }
 
-/* Turquoise vertical back panel where MOTEL sits */
+/* ============================================================
+   THE CREAM PANEL — holds the MOTEL letters, sits in front of arrow
+   ============================================================ */
 .sign__panel {
   position: absolute;
-  left: 50%;
-  top: 22%;
-  transform: translateX(-50%);
-  width: 32%;
+  left: 38%;
+  top: 18%;
+  width: 30%;
   height: 70%;
-  background: linear-gradient(
-    to right,
-    rgba(46, 230, 255, 0.08) 0%,
-    rgba(46, 230, 255, 0.18) 50%,
-    rgba(46, 230, 255, 0.08) 100%
-  );
-  border-left: 1px solid rgba(46, 230, 255, 0.3);
-  border-right: 1px solid rgba(46, 230, 255, 0.3);
-  z-index: 2;
+  background: linear-gradient(to right,
+    #e8dba8 0%,
+    #f5e9b8 50%,
+    #d8c98c 100%);
+  border-top: 2px solid #b8a96e;
+  border-bottom: 2px solid #b8a96e;
+  z-index: 3;
   opacity: 0;
-  animation: panel-on 1.5s ease-out 1.2s forwards;
+  animation: panel-on 1.2s ease-out 1s forwards;
+  box-shadow: 0 0 12px rgba(0,0,0,0.4);
 }
 
 @keyframes panel-on {
@@ -404,41 +410,46 @@ a { color: inherit; text-decoration: none; }
   to   { opacity: 1; }
 }
 
-/* MOTEL stack — 5 letter boxes */
+/* ============================================================
+   MOTEL letters — red-bordered boxes on cream with white letters
+   Letters glow turquoise from the neon tubing inside
+   ============================================================ */
 .sign__motel {
   position: absolute;
-  left: 50%;
-  top: 24%;
-  transform: translateX(-50%);
-  width: 28%;
-  height: 66%;
-  z-index: 3;
+  left: 38%;
+  top: 19%;
+  width: 30%;
+  height: 68%;
+  z-index: 4;
   display: flex;
   flex-direction: column;
-  gap: 4%;
+  justify-content: space-evenly;
+  align-items: center;
+  padding: 2% 0;
 }
 
 .sign__letter {
-  flex: 1;
-  background: rgba(248, 240, 221, 0.92); /* bone-white box */
-  border: 2px solid var(--turquoise);
+  width: 72%;
+  aspect-ratio: 1;
+  background: #f5e9b8;
+  border: 3px solid #a52030;
   display: grid;
   place-items: center;
   font-family: var(--font-display);
-  font-size: clamp(1.4rem, 4.5vw, 2.4rem);
-  color: var(--turquoise);
+  font-size: clamp(0.95rem, 3.2vw, 1.6rem);
+  color: #ffffff;
   text-shadow:
+    0 0 2px #ffffff,
     0 0 6px var(--turquoise),
-    0 0 12px rgba(46, 230, 255, 0.6);
+    0 0 12px var(--turquoise),
+    0 0 18px rgba(46, 230, 255, 0.6);
   box-shadow:
-    0 0 8px var(--turquoise-glow),
-    0 0 20px rgba(46, 230, 255, 0.3),
-    inset 0 0 8px rgba(46, 230, 255, 0.15);
+    0 0 4px rgba(165, 32, 48, 0.6),
+    inset 0 0 6px rgba(165, 32, 48, 0.2);
   opacity: 0;
   animation: letter-on 0.6s ease-out forwards;
 }
 
-/* Stagger each letter's power-on */
 .sign__letter:nth-child(1) { animation-delay: 1.6s; }
 .sign__letter:nth-child(2) { animation-delay: 1.75s; }
 .sign__letter:nth-child(3) { animation-delay: 1.9s; }
@@ -454,22 +465,26 @@ a { color: inherit; text-decoration: none; }
   100% { opacity: 1; }
 }
 
-/* The "Skyliner" cursive header — tilted parallelogram */
+/* ============================================================
+   THE SKYLINER HEADER — teal parallelogram tilted up-right
+   ============================================================ */
 .sign__header {
   position: absolute;
-  top: 6%;
-  left: 4%;
-  right: 4%;
-  height: 16%;
-  z-index: 4;
-  transform: skewX(-12deg);
-  background: rgba(20, 8, 30, 0.85);
-  border: 3px solid var(--pink);
+  top: 4%;
+  left: 6%;
+  right: 6%;
+  height: 14%;
+  z-index: 5;
+  transform: skewX(-14deg) rotate(-4deg);
+  background: linear-gradient(to bottom,
+    #2bb8c9 0%,
+    #1a9eac 100%);
+  border-top: 3px solid #4dd6e8;
+  border-bottom: 3px solid #178a96;
   box-shadow:
-    0 0 8px var(--pink),
-    0 0 20px rgba(255, 95, 168, 0.5),
-    0 0 40px rgba(255, 95, 168, 0.3),
-    inset 0 0 12px rgba(255, 95, 168, 0.2);
+    0 0 16px rgba(46, 230, 255, 0.5),
+    0 0 32px rgba(46, 230, 255, 0.3),
+    inset 0 -2px 4px rgba(0,0,0,0.2);
   display: grid;
   place-items: center;
   opacity: 0;
@@ -477,17 +492,17 @@ a { color: inherit; text-decoration: none; }
 }
 
 .sign__header-text {
-  transform: skewX(12deg); /* un-skew the text */
+  transform: skewX(14deg) rotate(4deg); /* un-skew */
   font-family: var(--font-script);
-  font-size: clamp(1.6rem, 6vw, 2.8rem);
+  font-size: clamp(1.4rem, 5.2vw, 2.4rem);
   color: #ffffff;
   letter-spacing: 0.02em;
   text-shadow:
-    0 0 4px #ffffff,
-    0 0 8px var(--turquoise),
+    0 0 3px #ffffff,
+    0 0 8px var(--turquoise-2),
     0 0 16px var(--turquoise),
     0 0 24px var(--turquoise),
-    0 0 40px rgba(46, 230, 255, 0.7);
+    0 0 36px rgba(46, 230, 255, 0.8);
   animation: skyliner-flicker 9s ease-in-out 4.5s infinite;
 }
 
@@ -503,17 +518,17 @@ a { color: inherit; text-decoration: none; }
 @keyframes skyliner-flicker {
   0%, 90%, 100% {
     text-shadow:
-      0 0 4px #ffffff,
-      0 0 8px var(--turquoise),
+      0 0 3px #ffffff,
+      0 0 8px var(--turquoise-2),
       0 0 16px var(--turquoise),
       0 0 24px var(--turquoise),
-      0 0 40px rgba(46, 230, 255, 0.7);
+      0 0 36px rgba(46, 230, 255, 0.8);
   }
   91% { text-shadow: 0 0 2px #ffffff; opacity: 0.6; }
   92% {
     text-shadow:
-      0 0 4px #ffffff,
-      0 0 8px var(--turquoise),
+      0 0 3px #ffffff,
+      0 0 8px var(--turquoise-2),
       0 0 16px var(--turquoise);
     opacity: 1;
   }
@@ -521,42 +536,36 @@ a { color: inherit; text-decoration: none; }
   94% { opacity: 1; }
 }
 
-/* Top spike — the thin red line extending above the chevron */
-.sign__spike {
+/* ============================================================
+   THE VACANCY PANEL — small teal sign hanging below
+   ============================================================ */
+.sign__vacancy {
   position: absolute;
-  top: -2%;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 3px;
-  height: 12%;
-  background: linear-gradient(to bottom, transparent, var(--red));
-  box-shadow:
-    0 0 6px var(--red),
-    0 0 12px var(--red-glow);
-  z-index: 5;
+  left: 30%;
+  bottom: 0;
+  width: 38%;
+  padding: 3% 0;
+  background: linear-gradient(to bottom, #2bb8c9 0%, #1a9eac 100%);
+  border: 2px solid #178a96;
+  text-align: center;
+  font-family: var(--font-display);
+  font-size: clamp(0.55rem, 1.6vw, 0.8rem);
+  letter-spacing: 0.15em;
+  color: #ffffff;
+  text-shadow: 0 0 6px rgba(255,255,255,0.6), 0 0 12px var(--turquoise);
+  z-index: 6;
   opacity: 0;
-  animation: spike-on 1s ease-out 0.4s forwards;
+  animation: vacancy-on 1s ease-out 3s forwards;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
 }
 
-@keyframes spike-on {
+@keyframes vacancy-on {
   to { opacity: 1; }
-}
-
-/* Support post — thin vertical line at the bottom */
-.sign__post {
-  position: absolute;
-  left: 50%;
-  bottom: -4%;
-  transform: translateX(-50%);
-  width: 5px;
-  height: 8%;
-  background: linear-gradient(to bottom, rgba(46,230,255,0.3), transparent);
-  z-index: 0;
 }
 
 @media (max-width: 900px) {
   .sign-stage {
-    max-width: 260px;
+    max-width: 240px;
     margin-top: 20px;
   }
 }
@@ -1100,9 +1109,9 @@ a.visit__value:hover { color: var(--turquoise-2); }
   }
   .sign__letter,
   .sign__header,
-  .sign__arrow-shape,
+  .sign__arrow,
   .sign__panel,
-  .sign__spike,
+  .sign__vacancy,
   .sign-stage::before,
   .sign-stage::after {
     opacity: 1 !important;

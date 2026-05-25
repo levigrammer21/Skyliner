@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Skyliner Motel — clean, comfortable rooms on historic Route 66. Book direct." />
+  <meta name="theme-color" content="#0a0014" />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Skyliner Motel — Route 66" />
+  <meta property="og:description" content="Glow all night on Route 66. Book direct." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://skylinermotel.com/" />
+
+  <title>Skyliner Motel — Route 66</title>
+
+  <!-- Fonts: Monoton for the neon sign, Bungee for display, JetBrains Mono for body -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Monoton&family=Bungee&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="css/style.css" />
+
+  <!--
+    ╔══════════════════════════════════════════════════════════════╗
+    ║  ANALYTICS — see README.md for setup. Uncomment ONE block.   ║
+    ║                                                              ║
+    ║  Option A: Cloudflare Web Analytics (recommended — free,     ║
+    ║  privacy-friendly, no cookie banner needed).                 ║
+    ║                                                              ║
+    ║  <script defer src="https://static.cloudflareinsights.com/   ║
+    ║    beacon.min.js"                                            ║
+    ║    data-cf-beacon='{"token": "YOUR_TOKEN_HERE"}'></script>   ║
+    ║                                                              ║
+    ║  Option B: Plausible (paid, simple).                         ║
+    ║  <script defer data-domain="skylinermotel.com"               ║
+    ║    src="https://plausible.io/js/script.js"></script>         ║
+    ╚══════════════════════════════════════════════════════════════╝
+  -->
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+
+  <!-- Grain + scanline overlays -->
+  <div class="grain" aria-hidden="true"></div>
+  <div class="scanlines" aria-hidden="true"></div>
+
+  <!-- Sticky top bar -->
+  <header class="topbar">
+    <div class="topbar__brand">
+      <span class="topbar__mark">◆</span>
+      <span class="topbar__name">Skyliner</span>
+    </div>
+    <nav class="topbar__nav" aria-label="Primary">
+      <a href="#rooms">Rooms</a>
+      <a href="#reviews">Reviews</a>
+      <a href="#find">Find Us</a>
+    </nav>
+    <a class="btn btn--primary topbar__cta"
+       href="https://us2.cloudbeds.com/reservation/PmV5Jg"
+       target="_blank" rel="noopener"
+       data-track="book-topbar">
+      Book Now
+    </a>
+  </header>
+
+  <main id="main">
+
+    <!-- HERO: the sign is the hero -->
+    <section class="hero">
+      <div class="hero__sky" aria-hidden="true">
+        <span class="star" style="--x:12%;--y:18%;--d:0s"></span>
+        <span class="star" style="--x:78%;--y:22%;--d:1.2s"></span>
+        <span class="star" style="--x:42%;--y:8%;--d:2.4s"></span>
+        <span class="star" style="--x:88%;--y:62%;--d:0.6s"></span>
+        <span class="star" style="--x:6%;--y:48%;--d:1.8s"></span>
+        <span class="star" style="--x:60%;--y:38%;--d:3s"></span>
+      </div>
+
+      <!-- THE SIGN — pure CSS neon -->
+      <div class="sign" role="img" aria-label="Skyliner Motel neon sign">
+        <div class="sign__post" aria-hidden="true"></div>
+
+        <div class="sign__diamond">
+          <span class="sign__star">★</span>
+        </div>
+
+        <div class="sign__panel sign__panel--top">
+          <span class="neon neon--magenta flicker-a">SKY</span>
+        </div>
+        <div class="sign__panel sign__panel--mid">
+          <span class="neon neon--cyan">LINER</span>
+        </div>
+        <div class="sign__panel sign__panel--bot">
+          <span class="neon neon--amber flicker-b">MOTEL</span>
+        </div>
+
+        <div class="sign__arrow" aria-hidden="true">
+          <span class="bulb"></span><span class="bulb"></span>
+          <span class="bulb"></span><span class="bulb"></span>
+          <span class="bulb"></span><span class="bulb"></span>
+          <span class="bulb"></span>
+        </div>
+
+        <div class="sign__vacancy">
+          <span class="neon neon--green">VACANCY</span>
+        </div>
+      </div>
+
+      <div class="hero__copy">
+        <p class="hero__kicker">— Historic Route 66 —</p>
+        <h1 class="hero__title">Glow all night.<br/>Rest all day.</h1>
+        <p class="hero__lede">
+          Clean rooms. Cold A/C. Hot coffee. A neon sign that's been guiding travelers home since the road was new.
+        </p>
+        <div class="hero__cta">
+          <a class="btn btn--primary btn--lg"
+             href="https://us2.cloudbeds.com/reservation/PmV5Jg"
+             target="_blank" rel="noopener"
+             data-track="book-hero">
+            Book a Room →
+          </a>
+          <a class="btn btn--ghost btn--lg" href="#rooms" data-track="see-rooms">
+            See the rooms
+          </a>
+        </div>
+      </div>
+
+      <div class="hero__scroll" aria-hidden="true">
+        <span>scroll</span>
+        <div class="hero__scroll-line"></div>
+      </div>
+    </section>
+
+    <!-- MARQUEE -->
+    <div class="marquee" aria-hidden="true">
+      <div class="marquee__track">
+        <span>◆ FREE WI-FI ◆ ROUTE 66 ◆ FREE PARKING ◆ PET FRIENDLY ◆ COLD A/C ◆ HOT SHOWERS ◆ NEON DREAMS ◆ FREE WI-FI ◆ ROUTE 66 ◆ FREE PARKING ◆ PET FRIENDLY ◆ COLD A/C ◆ HOT SHOWERS ◆ NEON DREAMS ◆</span>
+      </div>
+    </div>
+
+    <!-- ROOMS GALLERY -->
+    <section class="rooms" id="rooms">
+      <div class="rooms__head">
+        <p class="eyebrow">02 / The Rooms</p>
+        <h2 class="section-title">
+          <span class="neon neon--cyan-soft">Where you'll</span>
+          <span class="italic">land tonight.</span>
+        </h2>
+      </div>
+
+      <!--
+        Drop room photos into /img/rooms/ — the gallery auto-builds from this list.
+        Recommended size: 1600×1200 (4:3) or 1600×1000 (16:10), JPG, <300kb.
+        Edit /js/script.js → ROOM_IMAGES to add/remove.
+      -->
+      <div class="gallery" id="gallery">
+        <!-- JS renders cards here -->
+      </div>
+
+      <div class="rooms__cta">
+        <a class="btn btn--primary btn--lg"
+           href="https://us2.cloudbeds.com/reservation/PmV5Jg"
+           target="_blank" rel="noopener"
+           data-track="book-rooms">
+          Check availability →
+        </a>
+      </div>
+    </section>
+
+    <!-- REVIEWS -->
+    <section class="reviews" id="reviews">
+      <p class="eyebrow">03 / Word on the road</p>
+      <div class="reviews__grid">
+        <blockquote class="review">
+          <div class="stars" aria-label="5 out of 5">★★★★★</div>
+          <p>"Fresh neon, clean rooms, easy booking. The sign alone is worth the stop."</p>
+          <cite>— A recent guest</cite>
+        </blockquote>
+        <blockquote class="review review--featured">
+          <div class="stars" aria-label="5 out of 5">★★★★★</div>
+          <p>"This is what Route 66 is supposed to feel like."</p>
+          <cite>— Road tripper</cite>
+        </blockquote>
+        <blockquote class="review">
+          <div class="stars" aria-label="5 out of 5">★★★★★</div>
+          <p>"Quiet, comfortable, and the staff couldn't have been kinder."</p>
+          <cite>— Returning guest</cite>
+        </blockquote>
+      </div>
+    </section>
+
+    <!-- FIND US -->
+    <section class="find" id="find">
+      <div class="find__inner">
+        <p class="eyebrow">04 / Find the glow</p>
+        <h2 class="section-title section-title--alt">
+          Pull off the road.<br/>
+          <span class="neon neon--magenta-soft">Pull up a chair.</span>
+        </h2>
+
+        <div class="find__grid">
+          <div class="find__card">
+            <p class="find__label">Phone</p>
+            <a class="find__value" href="tel:+15551234567" data-track="phone">(555) 123-4567</a>
+          </div>
+          <div class="find__card">
+            <p class="find__label">Address</p>
+            <p class="find__value">123 Historic Route 66</p>
+          </div>
+          <div class="find__card">
+            <p class="find__label">Hours</p>
+            <p class="find__value">Check-in 3PM · Check-out 11AM</p>
+          </div>
+        </div>
+
+        <a class="btn btn--primary btn--xl find__book"
+           href="https://us2.cloudbeds.com/reservation/PmV5Jg"
+           target="_blank" rel="noopener"
+           data-track="book-find">
+          Book direct — best rate guaranteed →
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <!-- Floating mobile booking button -->
+  <a class="float-book"
+     href="https://us2.cloudbeds.com/reservation/PmV5Jg"
+     target="_blank" rel="noopener"
+     data-track="book-float"
+     aria-label="Book now">
+    <span>Book</span>
+    <span class="float-book__arrow">→</span>
+  </a>
+
+  <footer class="footer">
+    <div class="footer__inner">
+      <div class="footer__brand">
+        <span class="neon neon--cyan-soft">Skyliner Motel</span>
+      </div>
+      <p class="footer__tag">Route 66 · Est. on the open road</p>
+      <p class="footer__small">© <span id="year"></span> Skyliner Motel. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="js/script.js" defer></script>
+</body>
+</html>

@@ -3,58 +3,38 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Skyliner Motel — clean, comfortable rooms on historic Route 66. Book direct." />
-  <meta name="theme-color" content="#0a0014" />
+  <meta name="description" content="Skyliner Motel — a restored 1950s motor court on historic Route 66 in Stroud, Oklahoma. 10 fully remodeled rooms, contactless entry, free Wi-Fi. Book direct." />
+  <meta name="theme-color" content="#0a0a14" />
 
-  <!-- Open Graph -->
-  <meta property="og:title" content="Skyliner Motel — Route 66" />
-  <meta property="og:description" content="Glow all night on Route 66. Book direct." />
+  <meta property="og:title" content="Skyliner Motel — Route 66, Stroud OK" />
+  <meta property="og:description" content="A restored 1950s motor court on Route 66 in Stroud, Oklahoma. 10 rooms, turquoise & red neon, contactless check-in." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://skylinermotel.com/" />
 
-  <title>Skyliner Motel — Route 66</title>
+  <title>Skyliner Motel — Route 66, Stroud Oklahoma</title>
 
-  <!-- Fonts: Monoton for the neon sign, Bungee for display, JetBrains Mono for body -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Monoton&family=Bungee&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
 
   <link rel="stylesheet" href="style.css" />
-
-  <!--
-    ╔══════════════════════════════════════════════════════════════╗
-    ║  ANALYTICS — see README.md for setup. Uncomment ONE block.   ║
-    ║                                                              ║
-    ║  Option A: Cloudflare Web Analytics (recommended — free,     ║
-    ║  privacy-friendly, no cookie banner needed).                 ║
-    ║                                                              ║
-    ║  <script defer src="https://static.cloudflareinsights.com/   ║
-    ║    beacon.min.js"                                            ║
-    ║    data-cf-beacon='{"token": "YOUR_TOKEN_HERE"}'></script>   ║
-    ║                                                              ║
-    ║  Option B: Plausible (paid, simple).                         ║
-    ║  <script defer data-domain="skylinermotel.com"               ║
-    ║    src="https://plausible.io/js/script.js"></script>         ║
-    ╚══════════════════════════════════════════════════════════════╝
-  -->
 </head>
 <body>
   <a class="skip" href="#main">Skip to content</a>
 
-  <!-- Grain + scanline overlays -->
   <div class="grain" aria-hidden="true"></div>
   <div class="scanlines" aria-hidden="true"></div>
 
-  <!-- Sticky top bar -->
   <header class="topbar">
     <div class="topbar__brand">
       <span class="topbar__mark">◆</span>
       <span class="topbar__name">Skyliner</span>
     </div>
     <nav class="topbar__nav" aria-label="Primary">
+      <a href="#story">Story</a>
       <a href="#rooms">Rooms</a>
-      <a href="#reviews">Reviews</a>
-      <a href="#find">Find Us</a>
+      <a href="#nearby">Nearby</a>
+      <a href="#visit">Visit</a>
     </nav>
     <a class="btn btn--primary topbar__cta"
        href="https://us2.cloudbeds.com/reservation/PmV5Jg"
@@ -66,7 +46,6 @@
 
   <main id="main">
 
-    <!-- HERO: the sign is the hero -->
     <section class="hero">
       <div class="hero__sky" aria-hidden="true">
         <span class="star" style="--x:12%;--y:18%;--d:0s"></span>
@@ -77,41 +56,16 @@
         <span class="star" style="--x:60%;--y:38%;--d:3s"></span>
       </div>
 
-      <!-- THE SIGN — pure CSS neon -->
-      <div class="sign" role="img" aria-label="Skyliner Motel neon sign">
-        <div class="sign__post" aria-hidden="true"></div>
-
-        <div class="sign__diamond">
-          <span class="sign__star">★</span>
-        </div>
-
-        <div class="sign__panel sign__panel--top">
-          <span class="neon neon--magenta flicker-a">SKY</span>
-        </div>
-        <div class="sign__panel sign__panel--mid">
-          <span class="neon neon--cyan">LINER</span>
-        </div>
-        <div class="sign__panel sign__panel--bot">
-          <span class="neon neon--amber flicker-b">MOTEL</span>
-        </div>
-
-        <div class="sign__arrow" aria-hidden="true">
-          <span class="bulb"></span><span class="bulb"></span>
-          <span class="bulb"></span><span class="bulb"></span>
-          <span class="bulb"></span><span class="bulb"></span>
-          <span class="bulb"></span>
-        </div>
-
-        <div class="sign__vacancy">
-          <span class="neon neon--green">VACANCY</span>
-        </div>
+      <!-- THE SIGN STAGE — replaced once you tell me how to source the image -->
+      <div class="sign-stage" id="sign-stage" role="img" aria-label="Skyliner Motel neon sign">
+        <!-- populated by script.js based on what's in /img/ folder -->
       </div>
 
       <div class="hero__copy">
-        <p class="hero__kicker">— Historic Route 66 —</p>
-        <h1 class="hero__title">Glow all night.<br/>Rest all day.</h1>
+        <p class="hero__kicker">— Stroud, Oklahoma · Historic Route 66 —</p>
+        <h1 class="hero__title">A 1950s motor court,<br/>fully restored.</h1>
         <p class="hero__lede">
-          Clean rooms. Cold A/C. Hot coffee. A neon sign that's been guiding travelers home since the road was new.
+          Ten rooms. Original turquoise-and-red neon. Brand-new everything inside — bathrooms, beds, HVAC, electrical. Contactless 24-hour check-in. Right on the Mother Road.
         </p>
         <div class="hero__cta">
           <a class="btn btn--primary btn--lg"
@@ -132,30 +86,61 @@
       </div>
     </section>
 
-    <!-- MARQUEE -->
     <div class="marquee" aria-hidden="true">
       <div class="marquee__track">
-        <span>◆ FREE WI-FI ◆ ROUTE 66 ◆ FREE PARKING ◆ PET FRIENDLY ◆ COLD A/C ◆ HOT SHOWERS ◆ NEON DREAMS ◆ FREE WI-FI ◆ ROUTE 66 ◆ FREE PARKING ◆ PET FRIENDLY ◆ COLD A/C ◆ HOT SHOWERS ◆ NEON DREAMS ◆</span>
+        <span>◆ FREE WI-FI ◆ FREE PARKING ◆ CONTACTLESS ENTRY ◆ MINI-FRIDGE ◆ FLAT-SCREEN TV ◆ A/C ◆ DAILY HOUSEKEEPING ◆ FREE COFFEE ◆ FREE WI-FI ◆ FREE PARKING ◆ CONTACTLESS ENTRY ◆ MINI-FRIDGE ◆ FLAT-SCREEN TV ◆ A/C ◆ DAILY HOUSEKEEPING ◆ FREE COFFEE ◆</span>
       </div>
     </div>
 
-    <!-- ROOMS GALLERY -->
+    <section class="story" id="story">
+      <div class="story__inner">
+        <p class="eyebrow">01 / The Story</p>
+        <h2 class="section-title">
+          <span class="neon neon--turquoise-soft">Built in the late 1950s.</span>
+          <span class="italic">Brought back in 2026.</span>
+        </h2>
+        <div class="story__grid">
+          <div class="story__col">
+            <p>Jack and Lorene Tarter opened the Skyliner in the late 1950s — a classic Route 66 motor court with all the modern comforts of the era: air conditioning, in-room phones, carpeted floors, televisions.</p>
+            <p>Then time did what time does. The property faded. The neon went dark.</p>
+          </div>
+          <div class="story__col">
+            <p>In May 2025, Charles Palmer and Cody Paige bought the building and got to work. New electrical. New plumbing. New HVAC. New walls. Ten rooms rebuilt from the studs, with updated bathrooms, comfortable beds, mini-fridges, and contactless entry — your own door code, available 24 hours a day.</p>
+            <p>The original turquoise-and-red neon sign was fully restored. It's lit again, watching over Main Street like it did the first time around.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <section class="rooms" id="rooms">
       <div class="rooms__head">
         <p class="eyebrow">02 / The Rooms</p>
         <h2 class="section-title">
-          <span class="neon neon--cyan-soft">Where you'll</span>
-          <span class="italic">land tonight.</span>
+          <span class="neon neon--red-soft">Ten rooms.</span>
+          <span class="italic">All rebuilt from the studs.</span>
         </h2>
+        <p class="rooms__lede">
+          Each room has its own unique door code for contactless entry. Inside: a comfortable bed, updated bathroom, mini-fridge, flat-screen TV, A/C, and free Wi-Fi. Free self-parking right outside your door. Daily housekeeping. Coffee in the lobby in the morning.
+        </p>
       </div>
 
-      <!--
-        Drop room photos into /img/rooms/ — the gallery auto-builds from this list.
-        Recommended size: 1600×1200 (4:3) or 1600×1000 (16:10), JPG, <300kb.
-        Edit /js/script.js → ROOM_IMAGES to add/remove.
-      -->
+      <div class="room-types">
+        <div class="room-type">
+          <p class="room-type__label">Comfort Single</p>
+          <p class="room-type__detail">1 Double Bed</p>
+        </div>
+        <div class="room-type">
+          <p class="room-type__label">Deluxe Single</p>
+          <p class="room-type__detail">1 Queen Bed</p>
+        </div>
+        <div class="room-type">
+          <p class="room-type__label">Comfort Double</p>
+          <p class="room-type__detail">2 Double Beds</p>
+        </div>
+      </div>
+
       <div class="gallery" id="gallery">
-        <!-- JS renders cards here -->
+        <!-- populated by script.js → ROOM_IMAGES -->
       </div>
 
       <div class="rooms__cta">
@@ -168,63 +153,77 @@
       </div>
     </section>
 
-    <!-- REVIEWS -->
-    <section class="reviews" id="reviews">
-      <p class="eyebrow">03 / Word on the road</p>
-      <div class="reviews__grid">
-        <blockquote class="review">
-          <div class="stars" aria-label="5 out of 5">★★★★★</div>
-          <p>"Fresh neon, clean rooms, easy booking. The sign alone is worth the stop."</p>
-          <cite>— A recent guest</cite>
-        </blockquote>
-        <blockquote class="review review--featured">
-          <div class="stars" aria-label="5 out of 5">★★★★★</div>
-          <p>"This is what Route 66 is supposed to feel like."</p>
-          <cite>— Road tripper</cite>
-        </blockquote>
-        <blockquote class="review">
-          <div class="stars" aria-label="5 out of 5">★★★★★</div>
-          <p>"Quiet, comfortable, and the staff couldn't have been kinder."</p>
-          <cite>— Returning guest</cite>
-        </blockquote>
+    <section class="nearby" id="nearby">
+      <div class="nearby__inner">
+        <p class="eyebrow">03 / On Main Street</p>
+        <h2 class="section-title">
+          <span class="neon neon--turquoise-soft">Walk to everything.</span>
+        </h2>
+        <p class="nearby__lede">
+          Stroud's stretch of Route 66 is wall-to-wall neon thanks to the town's Neon on Main project — 45+ custom signs lighting up the corridor. The Skyliner sits in the middle of it.
+        </p>
+
+        <div class="nearby__grid">
+          <a class="nearby__card" href="https://maps.google.com/?q=114+W+Main+St,+Stroud,+OK+74079" target="_blank" rel="noopener" data-track="nearby-rockcafe">
+            <p class="nearby__distance">0.4 mi</p>
+            <p class="nearby__name">Rock Cafe</p>
+            <p class="nearby__desc">The 1939 Route 66 diner. Show your Skyliner receipt — 10% off.</p>
+          </a>
+          <a class="nearby__card" href="https://maps.google.com/?q=Route+66+Spirit+of+America+Museum,+Stroud+OK" target="_blank" rel="noopener" data-track="nearby-museum">
+            <p class="nearby__distance">~0.5 mi</p>
+            <p class="nearby__name">Route 66 Spirit of America Museum</p>
+            <p class="nearby__desc">Local Route 66 history and memorabilia.</p>
+          </a>
+          <a class="nearby__card" href="https://maps.google.com/?q=Ed+Smalley+Centennial+Park,+Stroud+OK" target="_blank" rel="noopener" data-track="nearby-park">
+            <p class="nearby__distance">0.4 mi</p>
+            <p class="nearby__name">Ed Smalley Centennial Park</p>
+            <p class="nearby__desc">Home to the Route 66 Centennial Monument.</p>
+          </a>
+          <a class="nearby__card" href="https://maps.google.com/?q=Gathering+Grounds+Coffee,+Stroud+OK" target="_blank" rel="noopener" data-track="nearby-coffee">
+            <p class="nearby__distance">0.2 mi</p>
+            <p class="nearby__name">Gathering Grounds Coffee</p>
+            <p class="nearby__desc">A walk from your door for morning coffee.</p>
+          </a>
+        </div>
       </div>
     </section>
 
-    <!-- FIND US -->
-    <section class="find" id="find">
-      <div class="find__inner">
-        <p class="eyebrow">04 / Find the glow</p>
+    <section class="visit" id="visit">
+      <div class="visit__inner">
+        <p class="eyebrow">04 / Visit</p>
         <h2 class="section-title section-title--alt">
           Pull off the road.<br/>
-          <span class="neon neon--magenta-soft">Pull up a chair.</span>
+          <span class="neon neon--red-soft">Pull up to the neon.</span>
         </h2>
 
-        <div class="find__grid">
-          <div class="find__card">
-            <p class="find__label">Phone</p>
-            <a class="find__value" href="tel:+15551234567" data-track="phone">(555) 123-4567</a>
+        <div class="visit__grid">
+          <div class="visit__card">
+            <p class="visit__label">Phone</p>
+            <a class="visit__value" href="tel:+19182900637" data-track="phone">(918) 290-0637</a>
           </div>
-          <div class="find__card">
-            <p class="find__label">Address</p>
-            <p class="find__value">123 Historic Route 66</p>
+          <div class="visit__card">
+            <p class="visit__label">Address</p>
+            <a class="visit__value" href="https://maps.google.com/?q=717+W+Main+St,+Stroud,+OK+74079" target="_blank" rel="noopener" data-track="map">
+              717 W Main St<br/>Stroud, OK 74079
+            </a>
           </div>
-          <div class="find__card">
-            <p class="find__label">Hours</p>
-            <p class="find__value">Check-in 3PM · Check-out 11AM</p>
+          <div class="visit__card">
+            <p class="visit__label">Check-in / Check-out</p>
+            <p class="visit__value">3:00 PM / 11:00 AM</p>
+            <p class="visit__sub">24-hour contactless entry by room code</p>
           </div>
         </div>
 
-        <a class="btn btn--primary btn--xl find__book"
+        <a class="btn btn--primary btn--xl visit__book"
            href="https://us2.cloudbeds.com/reservation/PmV5Jg"
            target="_blank" rel="noopener"
-           data-track="book-find">
-          Book direct — best rate guaranteed →
+           data-track="book-visit">
+          Book direct →
         </a>
       </div>
     </section>
   </main>
 
-  <!-- Floating mobile booking button -->
   <a class="float-book"
      href="https://us2.cloudbeds.com/reservation/PmV5Jg"
      target="_blank" rel="noopener"
@@ -237,10 +236,10 @@
   <footer class="footer">
     <div class="footer__inner">
       <div class="footer__brand">
-        <span class="neon neon--cyan-soft">Skyliner Motel</span>
+        <span class="neon neon--turquoise-soft">Skyliner Motel</span>
       </div>
-      <p class="footer__tag">Route 66 · Est. on the open road</p>
-      <p class="footer__small">© <span id="year"></span> Skyliner Motel. All rights reserved.</p>
+      <p class="footer__tag">717 W Main St · Stroud, Oklahoma · Route 66</p>
+      <p class="footer__small">© <span id="year"></span> Skyliner Motel.</p>
     </div>
   </footer>
 

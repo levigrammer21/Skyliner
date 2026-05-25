@@ -3,18 +3,31 @@
    ============================================================ */
 
 /* ============================================================
-   THE SIGN
-   ============================================================
-   Inject the real sign photo into the hero. To swap the image,
-   change SIGN_SRC below to your filename in the repo root.
+   THE SIGN — pure CSS recreation. No image needed.
+   Letters, panels, arrow are all live HTML elements so they can
+   flicker, glow, and animate independently.
    ============================================================ */
-const SIGN_SRC = 'sign.webp';
-const SIGN_ALT = 'The restored turquoise and red neon Skyliner Motel sign on Route 66 in Stroud, Oklahoma';
-
 function renderSign() {
   const stage = document.getElementById('sign-stage');
   if (!stage) return;
-  stage.innerHTML = `<img class="sign-stage__img" src="${SIGN_SRC}" alt="${SIGN_ALT}" />`;
+  stage.innerHTML = `
+    <div class="sign__spike" aria-hidden="true"></div>
+    <div class="sign__arrow" aria-hidden="true">
+      <div class="sign__arrow-shape"></div>
+    </div>
+    <div class="sign__panel" aria-hidden="true"></div>
+    <div class="sign__motel" aria-hidden="true">
+      <div class="sign__letter">M</div>
+      <div class="sign__letter">O</div>
+      <div class="sign__letter">T</div>
+      <div class="sign__letter">E</div>
+      <div class="sign__letter">L</div>
+    </div>
+    <div class="sign__header" aria-hidden="true">
+      <span class="sign__header-text">Skyliner</span>
+    </div>
+    <div class="sign__post" aria-hidden="true"></div>
+  `;
 }
 
 /* ============================================================

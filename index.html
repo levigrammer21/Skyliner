@@ -36,12 +36,18 @@
       <a href="#nearby">Nearby</a>
       <a href="#visit">Visit</a>
     </nav>
-    <a class="btn btn--primary topbar__cta"
-       href="https://us2.cloudbeds.com/reservation/PmV5Jg"
-       target="_blank" rel="noopener"
-       data-track="book-topbar">
-      Book Now
-    </a>
+    <div class="topbar__actions">
+      <a class="topbar__phone" href="tel:+19182901085" data-track="phone-topbar" aria-label="Call Skyliner Motel at 918-290-1085">
+        <span class="topbar__phone-label">Call or text</span>
+        <strong>(918) 290-1085</strong>
+      </a>
+      <a class="btn btn--primary topbar__cta"
+         href="https://us2.cloudbeds.com/reservation/PmV5Jg"
+         target="_blank" rel="noopener"
+         data-track="book-topbar">
+        Book Now
+      </a>
+    </div>
   </header>
 
   <main id="main">
@@ -56,19 +62,25 @@
         <span class="star" style="--x:60%;--y:38%;--d:3s"></span>
       </div>
 
-      <div class="hero-photo" id="hero-photo" aria-label="Skyliner Motel exterior photo">
-        <img id="hero-image" alt="Skyliner Motel and its restored Route 66 sign" />
+      <button class="hero-photo" id="hero-photo" type="button" aria-label="Open current Skyliner Motel photo in a larger view">
+        <img id="hero-image" alt="Skyliner Motel photo" />
+        <span class="hero-photo__hint">Tap photo to enlarge</span>
+        <span class="hero-photo__counter" id="hero-photo-counter" aria-live="polite"></span>
         <div class="hero-photo__fallback" id="hero-photo-fallback">
           <span class="hero-photo__eyebrow">Route 66 · Stroud, Oklahoma</span>
           <strong>SKYLINER</strong>
           <span>MOTEL</span>
           <small>Add <code>images/sign.jpg</code> to feature the real sign here.</small>
         </div>
-      </div>
+      </button>
 
       <div class="hero__copy">
         <p class="hero__kicker">— Stroud, Oklahoma · Historic Route 66 —</p>
         <h1 class="hero__title">A 1950s motor court,<br/>fully restored.</h1>
+        <a class="hero__phone" href="tel:+19182901085" data-track="phone-hero">
+          <span>Call or text to reserve</span>
+          <strong>(918) 290-1085</strong>
+        </a>
         <p class="hero__lede">
           Ten rooms. Original turquoise-and-red neon. Brand-new everything inside — bathrooms, beds, HVAC, electrical. Contactless 24-hour check-in. Right on the Mother Road.
         </p>
@@ -110,7 +122,8 @@
             <p>Then time did what time does. The property faded. The neon went dark.</p>
           </div>
           <div class="story__col">
-            <p>In May 2025, Charles Palmer and Cody Paige bought the building and got to work. New electrical. New plumbing. New HVAC. New walls. Ten rooms rebuilt from the studs, with updated bathrooms, comfortable beds, mini-fridges, and contactless entry — your own door code, available 24 hours a day.</p>
+            <p>In May 2025, Cody Paige and Charles Palmer bought the building and got to work. New electrical. New plumbing. New HVAC. New walls. Ten rooms rebuilt from the studs, with updated bathrooms, comfortable beds, mini-fridges, and contactless entry — your own door code, available 24 hours a day.</p>
+            <p>In 2026, Cody became the sole owner of the Skyliner Motel alongside his wife, Tera, continuing the restoration and welcoming travelers back to this classic Route 66 motor court.</p>
             <p>The original turquoise-and-red neon sign was fully restored. It's lit again, watching over Main Street like it did the first time around.</p>
           </div>
         </div>
@@ -237,6 +250,14 @@
     <span>Book</span>
     <span class="float-book__arrow">→</span>
   </a>
+
+  <div class="lightbox" id="lightbox" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Motel photo viewer">
+    <button class="lightbox__close" id="lightbox-close" type="button" aria-label="Close photo viewer">×</button>
+    <button class="lightbox__nav lightbox__nav--prev" id="lightbox-prev" type="button" aria-label="Previous photo">‹</button>
+    <img class="lightbox__image" id="lightbox-image" alt="Enlarged Skyliner Motel photo" />
+    <button class="lightbox__nav lightbox__nav--next" id="lightbox-next" type="button" aria-label="Next photo">›</button>
+    <p class="lightbox__caption" id="lightbox-caption"></p>
+  </div>
 
   <footer class="footer">
     <div class="footer__inner">

@@ -1231,3 +1231,93 @@ a.visit__value:hover { color: var(--turquoise-2); }
 @media (max-width: 900px) {
   .hero-photo { max-width: 460px; aspect-ratio: 5 / 4; }
 }
+
+/* ============================================================
+   CONTACT-FIRST HEADER, ROTATING HERO & LIGHTBOX
+   ============================================================ */
+.topbar__actions { display: flex; align-items: center; gap: 14px; }
+.topbar__phone {
+  display: flex; flex-direction: column; align-items: flex-end;
+  line-height: 1.15; color: var(--bone);
+}
+.topbar__phone-label {
+  color: var(--turquoise-2); text-transform: uppercase;
+  font-size: .62rem; letter-spacing: .18em;
+}
+.topbar__phone strong { font-family: var(--font-display); font-size: 1rem; letter-spacing: .04em; }
+.topbar__phone:hover strong { color: var(--turquoise-2); }
+
+.hero__phone {
+  display: inline-flex; flex-direction: column; align-items: flex-start;
+  margin: 0 0 24px; padding: 14px 18px;
+  border-left: 4px solid var(--turquoise);
+  background: rgba(46,230,255,.08);
+  box-shadow: 0 0 22px rgba(46,230,255,.12);
+}
+.hero__phone span { color: var(--bone-dim); text-transform: uppercase; letter-spacing: .16em; font-size: .72rem; }
+.hero__phone strong { font-family: var(--font-display); font-size: clamp(1.45rem, 3vw, 2rem); color: var(--turquoise-2); }
+.hero__phone:hover { background: rgba(46,230,255,.14); }
+
+.hero-photo { cursor: zoom-in; border: 0; padding: 0; color: inherit; font: inherit; }
+.hero-photo img { transition: opacity .36s ease, transform .8s ease; }
+.hero-photo:hover img { transform: scale(1.025); }
+.hero-photo img.is-changing { opacity: 0; }
+.hero-photo__hint,
+.hero-photo__counter {
+  position: absolute; z-index: 3; bottom: 14px;
+  padding: 7px 10px; background: rgba(14,20,36,.82);
+  border: 1px solid rgba(255,255,255,.15); color: var(--bone);
+  font-size: .68rem; letter-spacing: .08em; text-transform: uppercase;
+  backdrop-filter: blur(8px);
+}
+.hero-photo__hint { left: 14px; }
+.hero-photo__counter { right: 14px; }
+.hero-photo:not(.has-image) .hero-photo__hint,
+.hero-photo:not(.has-image) .hero-photo__counter { display: none; }
+
+.gallery__button { width: 100%; height: 100%; border: 0; padding: 0; background: none; color: inherit; cursor: zoom-in; text-align: left; }
+
+body.lightbox-open { overflow: hidden; }
+.lightbox {
+  position: fixed; inset: 0; z-index: 1000; display: none;
+  align-items: center; justify-content: center;
+  padding: 64px 72px 80px; background: rgba(4,7,14,.94);
+  backdrop-filter: blur(12px);
+}
+.lightbox.is-open { display: flex; }
+.lightbox__image {
+  max-width: min(1100px, 90vw); max-height: 82vh;
+  width: auto; height: auto; object-fit: contain;
+  box-shadow: 0 20px 80px rgba(0,0,0,.7);
+}
+.lightbox__close,
+.lightbox__nav {
+  position: absolute; border: 1px solid rgba(255,255,255,.3);
+  background: rgba(14,20,36,.82); color: white; cursor: pointer;
+  display: grid; place-items: center;
+}
+.lightbox__close { top: 18px; right: 22px; width: 48px; height: 48px; font-size: 2rem; }
+.lightbox__nav { top: 50%; transform: translateY(-50%); width: 52px; height: 72px; font-size: 3rem; }
+.lightbox__nav--prev { left: 12px; }
+.lightbox__nav--next { right: 12px; }
+.lightbox__caption { position: absolute; bottom: 24px; left: 24px; right: 24px; text-align: center; color: var(--bone-dim); }
+.lightbox button:hover { border-color: var(--turquoise); color: var(--turquoise-2); }
+
+@media (max-width: 980px) {
+  .topbar__nav { display: none; }
+}
+@media (max-width: 720px) {
+  .topbar { gap: 10px; }
+  .topbar__name { display: none; }
+  .topbar__actions { gap: 8px; }
+  .topbar__phone-label { display: none; }
+  .topbar__phone strong { font-size: .82rem; }
+  .topbar__cta { padding: 10px 12px; font-size: .7rem; }
+  .hero { padding-top: 112px; }
+  .hero__phone { align-items: center; }
+  .lightbox { padding: 70px 12px 84px; }
+  .lightbox__nav { width: 42px; height: 58px; font-size: 2.3rem; background: rgba(14,20,36,.7); }
+  .lightbox__nav--prev { left: 4px; }
+  .lightbox__nav--next { right: 4px; }
+  .lightbox__image { max-width: 96vw; max-height: 76vh; }
+}

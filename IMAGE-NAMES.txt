@@ -1,0 +1,13 @@
+Create an images folder in the repository root.
+
+Recommended filenames:
+- images/sign.jpg (featured hero image)
+- images/motel-01.jpg through images/motel-12.jpg
+- images/room-01.jpg through images/room-06.jpg
+- images/exterior-01.jpg through images/exterior-03.jpg
+- images/interior-01.jpg through images/interior-03.jpg
+- images/lobby.jpg
+- images/bathroom.jpg
+
+Supported extensions: .jpg, .jpeg, .png, .webp
+The page checks these names automatically and only displays files that exist.

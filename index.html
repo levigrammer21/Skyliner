@@ -56,9 +56,14 @@
         <span class="star" style="--x:60%;--y:38%;--d:3s"></span>
       </div>
 
-      <!-- THE SIGN STAGE — replaced once you tell me how to source the image -->
-      <div class="sign-stage" id="sign-stage" role="img" aria-label="Skyliner Motel neon sign">
-        <!-- populated by script.js based on what's in /img/ folder -->
+      <div class="hero-photo" id="hero-photo" aria-label="Skyliner Motel exterior photo">
+        <img id="hero-image" alt="Skyliner Motel and its restored Route 66 sign" />
+        <div class="hero-photo__fallback" id="hero-photo-fallback">
+          <span class="hero-photo__eyebrow">Route 66 · Stroud, Oklahoma</span>
+          <strong>SKYLINER</strong>
+          <span>MOTEL</span>
+          <small>Add <code>images/sign.jpg</code> to feature the real sign here.</small>
+        </div>
       </div>
 
       <div class="hero__copy">
@@ -160,29 +165,29 @@
           <span class="neon neon--turquoise-soft">Walk to everything.</span>
         </h2>
         <p class="nearby__lede">
-          Stroud's stretch of Route 66 is wall-to-wall neon thanks to the town's Neon on Main project — 45+ custom signs lighting up the corridor. The Skyliner sits in the middle of it.
+          Stay close to the places that make Stroud worth the stop—from a legendary Route 66 diner to local coffee, flowers, gifts, and hometown food.
         </p>
 
         <div class="nearby__grid">
-          <a class="nearby__card" href="https://maps.google.com/?q=114+W+Main+St,+Stroud,+OK+74079" target="_blank" rel="noopener" data-track="nearby-rockcafe">
-            <p class="nearby__distance">0.4 mi</p>
+          <a class="nearby__card" href="https://maps.google.com/?q=Rock+Cafe,+114+W+Main+St,+Stroud,+OK+74079" target="_blank" rel="noopener" data-track="nearby-rockcafe">
+            <p class="nearby__distance">Route 66 landmark</p>
             <p class="nearby__name">Rock Cafe</p>
-            <p class="nearby__desc">The 1939 Route 66 diner. Show your Skyliner receipt — 10% off.</p>
+            <p class="nearby__desc">Historic 1939 diner serving classic road-trip food on Main Street.</p>
           </a>
-          <a class="nearby__card" href="https://maps.google.com/?q=Route+66+Spirit+of+America+Museum,+Stroud+OK" target="_blank" rel="noopener" data-track="nearby-museum">
-            <p class="nearby__distance">~0.5 mi</p>
-            <p class="nearby__name">Route 66 Spirit of America Museum</p>
-            <p class="nearby__desc">Local Route 66 history and memorabilia.</p>
+          <a class="nearby__card" href="https://maps.google.com/?q=Fourth+%26+James,+723+W+4th+St,+Stroud,+OK+74079" target="_blank" rel="noopener" data-track="nearby-fourth-james">
+            <p class="nearby__distance">Local breakfast & coffee</p>
+            <p class="nearby__name">Fourth &amp; James</p>
+            <p class="nearby__desc">A nearby local stop for breakfast, lunch, coffee, and baked treats.</p>
           </a>
-          <a class="nearby__card" href="https://maps.google.com/?q=Ed+Smalley+Centennial+Park,+Stroud+OK" target="_blank" rel="noopener" data-track="nearby-park">
-            <p class="nearby__distance">0.4 mi</p>
-            <p class="nearby__name">Ed Smalley Centennial Park</p>
-            <p class="nearby__desc">Home to the Route 66 Centennial Monument.</p>
+          <a class="nearby__card" href="https://maps.google.com/?q=The+Willow+Event+Center+%26+Flower+Shop,+420+N+8th+Ave,+Stroud,+OK" target="_blank" rel="noopener" data-track="nearby-willow">
+            <p class="nearby__distance">Flowers, gifts & events</p>
+            <p class="nearby__name">The Willow</p>
+            <p class="nearby__desc">A local flower shop, gift stop, and event space in Stroud.</p>
           </a>
-          <a class="nearby__card" href="https://maps.google.com/?q=Gathering+Grounds+Coffee,+Stroud+OK" target="_blank" rel="noopener" data-track="nearby-coffee">
-            <p class="nearby__distance">0.2 mi</p>
-            <p class="nearby__name">Gathering Grounds Coffee</p>
-            <p class="nearby__desc">A walk from your door for morning coffee.</p>
+          <a class="nearby__card" href="https://maps.google.com/?q=Palmer%27s+Place,+Stroud,+OK+74079" target="_blank" rel="noopener" data-track="nearby-palmers">
+            <p class="nearby__distance">Burgers & sandwiches</p>
+            <p class="nearby__name">Palmer's Place</p>
+            <p class="nearby__desc">A hometown spot focused on burgers, fries, sandwiches, and familiar favorites.</p>
           </a>
         </div>
       </div>
@@ -199,7 +204,7 @@
         <div class="visit__grid">
           <div class="visit__card">
             <p class="visit__label">Phone</p>
-            <a class="visit__value" href="tel:+19182900637" data-track="phone">(918) 290-0637</a>
+            <a class="visit__value" href="tel:+19182901085" data-track="phone">(918) 290-1085</a>
           </div>
           <div class="visit__card">
             <p class="visit__label">Address</p>

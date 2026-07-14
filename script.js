@@ -1,13 +1,30 @@
 /* SKYLINER MOTEL — site script */
 
 const IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp'];
-const HERO_BASENAMES = ['sign', 'skyliner-sign', 'exterior', 'motel-exterior', 'front'];
-const GALLERY_BASENAMES = [
-  'motel-01','motel-02','motel-03','motel-04','motel-05','motel-06','motel-07','motel-08','motel-09','motel-10','motel-11','motel-12',
-  'room-01','room-02','room-03','room-04','room-05','room-06',
-  'exterior-01','exterior-02','exterior-03','interior-01','interior-02','interior-03',
-  'lobby','bathroom','sign','exterior','front'
+const HERO_BASENAMES = [
+  'IMG_20260714_055554',
+  'IMG_20260714_055558',
+  'IMG_20260714_055600',
+  'IMG_20260714_055606',
+  'IMG_20260714_055608',
+  'IMG_20260714_055612',
+  'IMG_20260714_055615',
+  'IMG_20260714_055620',
+  'IMG_20260714_055627'
 ];
+
+const GALLERY_BASENAMES = [
+  'IMG_20260714_055554',
+  'IMG_20260714_055558',
+  'IMG_20260714_055600',
+  'IMG_20260714_055606',
+  'IMG_20260714_055608',
+  'IMG_20260714_055612',
+  'IMG_20260714_055615',
+  'IMG_20260714_055620',
+  'IMG_20260714_055627'
+];
+
 const LAYOUT_PATTERN = ['lg', 'sm', 'sm', 'wide', 'md', 'md', 'sm', 'sm', 'lg'];
 
 function imageExists(src) {
